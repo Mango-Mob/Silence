@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: f4bf0afba420f004dbc97e27612cd1f6
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Junicode
+  fontNames:
+  - Junicode
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 508fa00b66c05534e9b80449b3b9e1d7, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
