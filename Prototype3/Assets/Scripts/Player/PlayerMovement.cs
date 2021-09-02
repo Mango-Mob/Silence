@@ -14,6 +14,9 @@ public class PlayerMovement : MonoBehaviour
     public float m_damping = 0.5f;
     public float m_airAcceleration = 1.0f;
 
+    private Vector3 m_lastPosition;
+    private Vector3 m_calculatedVelocity = Vector3.zero;
+
     [Header("Head Collision")]
     public Transform m_headCollisionPosition;
     public LayerMask m_headCollisionMask;
@@ -26,9 +29,47 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController charController;
     private bool m_grounded = false;
 
+    [Header("Grappling Hook")]
+    public LineRenderer m_grappleSource;
+    public float m_grappleRange = 15.0f;
+    public float m_grappleAcceleration = 10.0f;
+    public float m_maxGrappleSpeed = 20.0f;
+    public float m_grappleProjectileSpeed = 5.0f;
+    public Transform m_grappleEnd;
+
+    private Vector3 m_grappleHitPos;
+    private HookMode m_hookMode = HookMode.idle;
+    private float m_grappleShotLerp = 0.0f;
+
+    [Header("Wall Running")]
+    public Transform m_wallColliderL;
+    public Transform m_wallColliderR;
+    public float m_wallRunGravity = 3.0f;
+    private bool m_isWallRunning = false;
+    public float m_cameraTiltSpeed = 1.0f;
+    private WallDir m_currentWall = WallDir.none;
+    private float m_tiltVelocity = 0.0f;
+
+    enum HookMode
+    {
+        idle,
+        firing,
+        firing_missed,
+        retracting,
+        pulling,
+    }
+
+    enum WallDir
+    {
+        left,
+        right,
+        none,
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        m_lastPosition = transform.position;
         charController = GetComponent<CharacterController>();
         playerCamera = GetComponent<PlayerCamera>();
         m_cameraOffset = playerCamera.m_camera.transform.localPosition.y;
@@ -45,20 +86,21 @@ public class PlayerMovement : MonoBehaviour
         m_grounded = charController.isGrounded;
 
         // Player movement
-        Vector2 movementInput;
-        movementInput = GetMovementInput();
+        Vector2 movementInput = Vector2.zero;
+        if (!m_isWallRunning)
+            movementInput = GetMovementInput();
         Vector3 moveDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
         float currentSpeed = (m_crouchLerp < 0.5f) ? m_crouchSpeed : m_speed;
 
         if (leftGround)
         {
-            m_velocity.x = moveDirection.x * currentSpeed;
-            m_velocity.z = moveDirection.z * currentSpeed;
+            m_velocity.x += moveDirection.x * currentSpeed;
+            m_velocity.z += moveDirection.z * currentSpeed;
         }
 
         // Air Acceleration
-        if (!m_grounded)
+        if (!m_grounded && !m_isWallRunning)
         {
             #region Terrible Code
             //if (horizontalVelocity.normalized.x > 0)
@@ -91,7 +133,8 @@ public class PlayerMovement : MonoBehaviour
             //    }
             //}
             #endregion
-            
+
+            if (m_hookMode != HookMode.pulling)
             m_velocity += moveDirection * m_airAcceleration * Time.deltaTime;
 
             Vector3 horizontalVelocity = m_velocity;
@@ -99,24 +142,32 @@ public class PlayerMovement : MonoBehaviour
 
             if (horizontalVelocity.magnitude > m_speed)
             {
-                horizontalVelocity = horizontalVelocity.normalized * m_speed;
+                horizontalVelocity -= horizontalVelocity.normalized * m_speed * Time.deltaTime;
             }
 
             m_velocity.x = horizontalVelocity.x;
             m_velocity.z = horizontalVelocity.z;
 
             moveDirection = Vector2.zero;
+
+            //m_calculatedVelocity = (transform.position - m_lastPosition) / Time.deltaTime;
+            //m_lastPosition = transform.position;
+            //Debug.Log((m_velocity - m_calculatedVelocity).magnitude);
+            //m_velocity = Vector3.Lerp(m_velocity, m_calculatedVelocity, 0.1f);
         }
 
+
         // Grounded checks
-        if (m_grounded && m_velocity.y < 0.0f)
+        if (m_grounded && m_velocity.y < 0.0f && m_hookMode != HookMode.pulling)
         {
             m_velocity = Vector3.zero;
             m_velocity.y = -1.0f;
         }
         else
         {
-            m_velocity.y -= m_playerGravity * Time.deltaTime;
+
+            if (Vector3.Distance(playerCamera.m_camera.transform.position, m_grappleHitPos) > 5.0f || m_hookMode != HookMode.pulling)
+            m_velocity.y -= ((!m_isWallRunning) ? m_playerGravity : m_wallRunGravity) * Time.deltaTime;
 
             // Velocity damping
             m_velocity.x -= m_velocity.x * m_damping * Time.deltaTime;
@@ -126,7 +177,6 @@ public class PlayerMovement : MonoBehaviour
         // Jumping
         if (charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
         {
-            //m_velocity = moveDirection * m_speed;
             m_velocity.y = m_jumpSpeed;
         }
 
@@ -149,7 +199,171 @@ public class PlayerMovement : MonoBehaviour
         float deltaHeight = newHeight - charController.height;
         charController.height = newHeight;
 
+        GrapplingHook();
+        WallRunning();
+
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
+    }
+
+    private void GrapplingHook()
+    {
+        m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
+        m_grappleSource.SetPosition(1, m_grappleEnd.position);
+
+        if (InputManager.instance.GetMouseButtonDown(MouseButton.RIGHT))
+        {
+            RaycastHit rayHit;
+
+            if (m_hookMode != HookMode.idle && m_hookMode != HookMode.retracting)
+                m_hookMode = HookMode.retracting;
+
+            if (m_hookMode == HookMode.idle)
+            {
+                if (Physics.Raycast(playerCamera.m_camera.transform.position, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    m_grappleHitPos = rayHit.point;
+                    m_hookMode = HookMode.firing;
+                    m_grappleSource.enabled = true;
+                }
+                else
+                {
+                    m_hookMode = HookMode.firing_missed;
+                    m_grappleHitPos = playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward * m_grappleRange;
+                    m_grappleSource.enabled = true;
+                }
+            }
+        }
+
+
+        switch (m_hookMode)
+        {
+            case HookMode.firing:
+                m_grappleShotLerp += Time.deltaTime * m_grappleProjectileSpeed;
+                if (m_grappleShotLerp >= 1.0f)
+                {
+                    m_hookMode = HookMode.pulling;
+                    m_velocity = Vector3.zero;
+                }
+                break;
+            case HookMode.firing_missed:
+                m_grappleShotLerp += Time.deltaTime * m_grappleProjectileSpeed;
+                if (m_grappleShotLerp >= 1.0f)
+                {
+                    m_hookMode = HookMode.retracting;
+                }
+                break;
+            case HookMode.pulling:
+                float distance = Vector3.Distance(playerCamera.m_camera.transform.position, m_grappleHitPos);
+                m_velocity += (m_grappleSource.GetPosition(1) - transform.position).normalized * m_grappleAcceleration * Time.deltaTime;
+                if (m_velocity.magnitude > m_maxGrappleSpeed)
+                {
+                    float mult = 1.0f;
+                    if (distance < 6.5f)
+                    {
+                        mult = 1 - 0.5f * (distance / 6.5f);
+                    }
+                    m_velocity = m_velocity.normalized * m_maxGrappleSpeed * mult;
+                }
+                if (distance < 1.5f /*((charController.collisionFlags & CollisionFlags.CollidedAbove) != 0 || (charController.collisionFlags & CollisionFlags.CollidedSides) != 0)*/)
+                {
+                    m_hookMode = HookMode.retracting;
+                    m_velocity /= 20.0f;
+                }
+                break;
+            case HookMode.retracting:
+                m_grappleShotLerp -= Time.deltaTime * m_grappleProjectileSpeed;
+                if (m_grappleShotLerp <= 0.0f)
+                {
+                    m_hookMode = HookMode.idle;
+                    m_grappleSource.enabled = false;
+                }
+                break;
+            default:
+                m_grappleShotLerp = 0.0f;
+                break;
+        }
+
+        m_grappleEnd.position = Vector3.Lerp(m_grappleSource.transform.position, m_grappleHitPos, m_grappleShotLerp);
+
+    }
+    private void WallRunning()
+    {
+        if (InputManager.instance.IsKeyPressed(KeyType.SPACE) && !m_grounded)
+        {
+            Transform sideToCheck;
+            if (InputManager.instance.IsKeyPressed(KeyType.A) && !InputManager.instance.IsKeyPressed(KeyType.D))
+                sideToCheck = m_wallColliderL;
+            else if (!InputManager.instance.IsKeyPressed(KeyType.A) && InputManager.instance.IsKeyPressed(KeyType.D))
+                sideToCheck = m_wallColliderR;
+            else
+            {
+                m_isWallRunning = false;
+                m_currentWall = WallDir.none;
+                return;
+            }
+
+            Collider closestCollider = null;
+            Collider[] colliders = Physics.OverlapSphere(sideToCheck.position, 0.5f, m_headCollisionMask);
+
+            float smallestDistance = 20.0f;
+
+            foreach (var collider in colliders)
+            {
+                float distance = Vector3.Distance(sideToCheck.position, collider.ClosestPointOnBounds(sideToCheck.position));
+                if (distance < smallestDistance)
+                {
+                    smallestDistance = distance;
+                    closestCollider = collider;
+                }
+            }
+
+            if (closestCollider != null)
+            {
+                m_isWallRunning = true;
+
+                Vector3 direction = (closestCollider.ClosestPointOnBounds(sideToCheck.position) - transform.position);
+                direction.y = 0;
+                direction.Normalize();
+
+                Vector2 perp = ((sideToCheck == m_wallColliderR) ? 1.0f : -1.0f) * Vector2.Perpendicular(new Vector2(direction.x, direction.z)) * m_speed;
+
+                m_velocity.x = perp.x;
+                m_velocity.z = perp.y;
+                m_velocity.y = 0.0f;
+
+                m_velocity += direction * 1.0f;
+
+                if (sideToCheck == m_wallColliderR)
+                    m_currentWall = WallDir.right;
+                else
+                    m_currentWall = WallDir.left;
+            }
+            else
+            {
+                m_isWallRunning = false;
+                m_currentWall = WallDir.none;
+            }
+        }
+        else
+        {
+            m_isWallRunning = false;
+            m_currentWall = WallDir.none;
+        }
+
+        float targetLerp = 0.5f; 
+        switch (m_currentWall)
+        {
+            case WallDir.left:
+                targetLerp = 0.0f;
+                break;
+            case WallDir.right:
+                targetLerp = 1.0f;
+                break;
+        }
+
+        playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, Mathf.LerpAngle(-30.0f, 30.0f, targetLerp), ref m_tiltVelocity, 0.1f);
+
+        //playerCamera.m_zRotation = Mathf.LerpAngle(-30.0f, 30.0f, targetLerp);
     }
     private Vector2 GetMovementInput()
     {
