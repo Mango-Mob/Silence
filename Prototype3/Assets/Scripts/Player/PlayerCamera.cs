@@ -11,6 +11,7 @@ public class PlayerCamera : MonoBehaviour
     public float m_mouseSentivityY = 50.0f;
 
     private float m_xRotation = 0.0f;
+    public float m_zRotation = 0.0f;
 
     public Camera m_camera { get; private set; }
 
@@ -32,7 +33,8 @@ public class PlayerCamera : MonoBehaviour
         m_xRotation -= mouseY;
         m_xRotation = Mathf.Clamp(m_xRotation, -90.0f, 90.0f);
 
-        m_camera.transform.localRotation = Quaternion.Euler(m_xRotation, 0.0f, 0.0f);
+        m_camera.transform.localRotation = Quaternion.Euler(m_xRotation, 0.0f, m_zRotation);
         transform.Rotate(Vector3.up * mouseX);
     }
+
 }
