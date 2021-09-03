@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class AI_Sight : MonoBehaviour
 {
-    private struct Interest
+    private struct SightInterest
     {
-        public Interest(Collider _reference, Vector3 _location)
+        public SightInterest(Collider _reference, Vector3 _location)
         {
             reference = _reference;
             lastKnownLocation = _location;
@@ -25,6 +25,34 @@ public class AI_Sight : MonoBehaviour
         }
     }
 
+    private struct ViewCastInfo
+    {
+        public ViewCastInfo(bool _hit, Vector3 _point, float _dist, float _angle)
+        {
+            hit = _hit;
+            point = _point;
+            dist = _dist;
+            angle = _angle;
+        }
+
+        public bool hit;
+        public Vector3 point;
+        public float dist;
+        public float angle;
+    }
+
+    private struct EdgeInfo
+    {
+        public EdgeInfo(Vector3 _pointA, Vector3 _pointB)
+        {
+            pointA = _pointA;
+            pointB = _pointB;
+        }
+
+        public Vector3 pointA;
+        public Vector3 pointB;
+    }
+
     [Header("Sight variables")]
     public float m_sightDegrees = 45f;
     public float m_sightRange = 5f;
@@ -32,8 +60,17 @@ public class AI_Sight : MonoBehaviour
     public float m_memoryDuration = 5.0f;
     public LayerMask m_sightLayer;
 
+    [Header("Render variables")]
+    [Range(0f, 1f)]
+    public float m_renderResolution;
+    public LayerMask m_obstacleMask;
+    public MeshFilter m_viewMeshFilter;
+    public int m_edgeResolveIteration;
+    public float m_edgeDistThreshold;
+    private Mesh m_viewMesh;
+
     private List<Collider> m_collidersWithin;
-    private List<Interest> m_interests = new List<Interest>();
+    private List<SightInterest> m_interests = new List<SightInterest>();
 
     private GUIStyle m_debugStyle;
     // Start is called before the first frame update
@@ -42,6 +79,9 @@ public class AI_Sight : MonoBehaviour
         m_debugStyle = new GUIStyle();
         m_debugStyle.fontSize = 18;
 
+        m_viewMesh = new Mesh();
+        m_viewMesh.name = "View Mesh";
+        m_viewMeshFilter.mesh = m_viewMesh;
     }
 
     // Update is called once per frame
@@ -51,11 +91,128 @@ public class AI_Sight : MonoBehaviour
         UpdateInterest();
     }
 
+    private void LateUpdate()
+    {
+        RaycastForRender();
+    }
+
+    private void RaycastForRender()
+    {
+        int stepCount = Mathf.RoundToInt(2*m_sightDegrees * m_renderResolution);
+        float stepAngleSize = (2*m_sightDegrees) / stepCount;
+        List<Vector3> viewPoints = new List<Vector3>();
+        ViewCastInfo oldViewCast = new ViewCastInfo();
+
+        for (int i = 0; i <= stepCount; i++)
+        {
+            float angle = transform.eulerAngles.y - m_sightDegrees + stepAngleSize * i;
+            ViewCastInfo newViewCast = ViewCast(angle);
+            if(i > 0)
+            {
+                bool edgeDistThresholdExceeded = Mathf.Abs(oldViewCast.dist - newViewCast.dist) > m_edgeDistThreshold;
+                if(oldViewCast.hit != newViewCast.hit || (oldViewCast.hit && newViewCast.hit && edgeDistThresholdExceeded))
+                {
+                    EdgeInfo edge = FindEdge(oldViewCast, newViewCast);
+                    if(edge.pointA != Vector3.zero)
+                        viewPoints.Add(edge.pointA);
+                    if (edge.pointB != Vector3.zero)
+                        viewPoints.Add(edge.pointB);
+                }
+            }
+            viewPoints.Add(newViewCast.point);
+            oldViewCast = newViewCast;
+        }
+
+        int vertexCount = viewPoints.Count + 1;
+        Vector3[] vertices = new Vector3[vertexCount];
+        int[] triangles = new int[(vertexCount - 2)*6];
+
+        vertices[0] = Vector3.zero;
+        for (int i = 0; i < vertexCount - 1; i++)
+        {
+            vertices[i + 1] = transform.InverseTransformPoint(viewPoints[i]);
+
+            if(i < vertexCount - 2)
+            {
+                triangles[i * 6] = 0;
+                triangles[i * 6 + 1] = i + 1;
+                triangles[i * 6 + 2] = i + 2;
+                triangles[i * 6 + 3] = 0;
+                triangles[i * 6 + 4] = i + 2;
+                triangles[i * 6 + 5] = i + 1;
+            }
+        }
+
+        m_viewMesh.Clear();
+        m_viewMesh.vertices = vertices;
+        m_viewMesh.triangles = triangles;
+        m_viewMesh.RecalculateNormals();
+    }
+
+    private ViewCastInfo ViewCast(float globalAngle)
+    {
+        Vector3 dir = DirFromAngle(globalAngle, true);
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, dir, out hit, m_sightRange, m_obstacleMask))
+        {
+            return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+        }
+        else
+        {
+            return new ViewCastInfo(false, transform.position + dir * m_sightRange, m_sightRange, globalAngle);
+        }
+    }
+    private EdgeInfo FindEdge(ViewCastInfo minView, ViewCastInfo maxView)
+    {
+        float minAngle = minView.angle;
+        float maxAngle = maxView.angle;
+
+        Vector3 minPoint = minView.point;
+        Vector3 maxPoint = maxView.point;
+
+        for (int i = 0; i < m_edgeResolveIteration; i++)
+        {
+            float angle = (minAngle + maxAngle) / 2;
+            ViewCastInfo newViewCast = ViewCast(angle);
+
+            bool edgeDistThresholdExceeded = Mathf.Abs(minView.dist - newViewCast.dist) > m_edgeDistThreshold;
+
+            if (newViewCast.hit == minView.hit && !edgeDistThresholdExceeded)
+            {
+                minAngle = angle;
+                minPoint = newViewCast.point;
+            }
+            else
+            {
+                maxAngle = angle;
+                maxPoint = newViewCast.point;
+            }
+        }
+        return new EdgeInfo(minPoint, maxPoint);
+    }
+
+    private Vector3 DirFromAngle(float angle, bool angleIsGlobal)
+    {
+        if (angleIsGlobal)
+        {
+            angle -= transform.rotation.eulerAngles.y;
+        }
+        return (Quaternion.AngleAxis(angle, Vector3.up)) * transform.forward;
+    }
+
     public bool IsWithinSight(Vector3 position)
     {
         Quaternion lookTo = Quaternion.LookRotation((position - transform.position).normalized);
 
         return Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo)) <= m_sightDegrees;
+    }
+
+    public bool CanRaycastToPosition(Vector3 position)
+    {
+        Vector3 direction = (position - transform.position).normalized;
+        RaycastHit hit;
+
+        return Physics.SphereCast(transform.position, m_castRadius, direction, out hit, m_sightRange);
     }
 
     public bool CanRaycastTo(Collider other)
@@ -126,7 +283,7 @@ public class AI_Sight : MonoBehaviour
                 if (!newList.Contains(item))
                 {
                     //Log it as an interest
-                    m_interests.Add(new Interest(item, item.transform.position));
+                    m_interests.Add(new SightInterest(item, item.transform.position));
                 }
             }
         }
@@ -145,7 +302,7 @@ public class AI_Sight : MonoBehaviour
         }
     }
 
-    public void OnDrawGizmos()
+    public void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + transform.forward * m_sightRange);

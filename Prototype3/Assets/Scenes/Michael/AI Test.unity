@@ -323,7 +323,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-1424
+  m_Name: pb_Mesh-1428
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -637,7 +637,7 @@ PrefabInstance:
     - target: {fileID: 1263316920918627362, guid: f9f11050eefe6904f92d62c93ad9347e,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1263316920918627366, guid: f9f11050eefe6904f92d62c93ad9347e,
         type: 3}
@@ -86873,11 +86873,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1530653499, guid: 904339685d432444da54e5eaab9f109a, type: 3}
+      propertyPath: m_Name
+      value: Senses
+      objectReference: {fileID: 0}
     - target: {fileID: 3022805217224183233, guid: 904339685d432444da54e5eaab9f109a,
         type: 3}
       propertyPath: m_myRoute
       value: 
       objectReference: {fileID: 389730325}
+    - target: {fileID: 3296360825472065662, guid: 904339685d432444da54e5eaab9f109a,
+        type: 3}
+      propertyPath: debugGameObject
+      value: 
+      objectReference: {fileID: 2012123604}
+    - target: {fileID: 3296360825472065662, guid: 904339685d432444da54e5eaab9f109a,
+        type: 3}
+      propertyPath: m_recieverLayer.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
     - target: {fileID: 8377122871345973916, guid: 904339685d432444da54e5eaab9f109a,
         type: 3}
       propertyPath: m_Mesh
