@@ -47,8 +47,12 @@ public class PlayerMovement : MonoBehaviour
     public float m_wallRunGravity = 3.0f;
     private bool m_isWallRunning = false;
     public float m_cameraTiltSpeed = 1.0f;
+
     private WallDir m_currentWall = WallDir.none;
+
+
     private float m_tiltVelocity = 0.0f;
+    private bool m_wallRunRefreshed = true;
 
     enum HookMode
     {
@@ -242,6 +246,7 @@ public class PlayerMovement : MonoBehaviour
                 if (m_grappleShotLerp >= 1.0f)
                 {
                     m_hookMode = HookMode.pulling;
+                    m_isWallRunning = false;
                     m_velocity = Vector3.zero;
                 }
                 break;
@@ -286,30 +291,26 @@ public class PlayerMovement : MonoBehaviour
         m_grappleEnd.position = Vector3.Lerp(m_grappleSource.transform.position, m_grappleHitPos, m_grappleShotLerp);
 
     }
+
+    private Vector3 DEBUGDIRECTION;
+
     private void WallRunning()
     {
-        if (InputManager.instance.IsKeyPressed(KeyType.SPACE) && !m_grounded)
-        {
-            Transform sideToCheck;
-            if (InputManager.instance.IsKeyPressed(KeyType.A) && !InputManager.instance.IsKeyPressed(KeyType.D))
-                sideToCheck = m_wallColliderL;
-            else if (!InputManager.instance.IsKeyPressed(KeyType.A) && InputManager.instance.IsKeyPressed(KeyType.D))
-                sideToCheck = m_wallColliderR;
-            else
-            {
-                m_isWallRunning = false;
-                m_currentWall = WallDir.none;
-                return;
-            }
+        Vector3 direction = transform.forward;
 
+        if (m_grounded)
+            m_wallRunRefreshed = true;
+
+        if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed) || m_isWallRunning) && !m_grounded)
+        {
             Collider closestCollider = null;
-            Collider[] colliders = Physics.OverlapSphere(sideToCheck.position, 0.5f, m_headCollisionMask);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
 
             float smallestDistance = 20.0f;
 
             foreach (var collider in colliders)
             {
-                float distance = Vector3.Distance(sideToCheck.position, collider.ClosestPointOnBounds(sideToCheck.position));
+                float distance = Vector3.Distance(transform.position, collider.ClosestPointOnBounds(transform.position));
                 if (distance < smallestDistance)
                 {
                     smallestDistance = distance;
@@ -317,26 +318,56 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
 
+            if (InputManager.instance.IsKeyDown(KeyType.SPACE) && m_isWallRunning)
+            {
+                m_isWallRunning = false;
+                m_currentWall = WallDir.none;
+
+                Vector3 jumpDir = transform.forward;
+                m_velocity = transform.forward * m_speed;
+                m_velocity.y = m_jumpSpeed;
+
+                return;
+            }
+
             if (closestCollider != null)
             {
-                m_isWallRunning = true;
-
-                Vector3 direction = (closestCollider.ClosestPointOnBounds(sideToCheck.position) - transform.position);
+                direction = (closestCollider.ClosestPoint(transform.position) - transform.position);
                 direction.y = 0;
                 direction.Normalize();
 
-                Vector2 perp = ((sideToCheck == m_wallColliderR) ? 1.0f : -1.0f) * Vector2.Perpendicular(new Vector2(direction.x, direction.z)) * m_speed;
+                // REMOVE LATER
+                DEBUGDIRECTION = direction;
+                
+
+                if (!m_isWallRunning)
+                {
+                    Vector3 localDirection = direction.x * transform.forward + direction.z * transform.right;
+                    if (localDirection.z < 0)
+                    {
+                        m_currentWall = WallDir.left;
+                    }
+                    else if (localDirection.z > 0)
+                    {
+                        m_currentWall = WallDir.right;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+
+                m_isWallRunning = true;
+                m_wallRunRefreshed = false;
+
+                Vector2 perp = ((m_currentWall == WallDir.right) ? 1.0f : -1.0f) * Vector2.Perpendicular(new Vector2(direction.x, direction.z)) * m_speed;
 
                 m_velocity.x = perp.x;
                 m_velocity.z = perp.y;
                 m_velocity.y = 0.0f;
 
                 m_velocity += direction * 1.0f;
-
-                if (sideToCheck == m_wallColliderR)
-                    m_currentWall = WallDir.right;
-                else
-                    m_currentWall = WallDir.left;
             }
             else
             {
@@ -350,17 +381,20 @@ public class PlayerMovement : MonoBehaviour
             m_currentWall = WallDir.none;
         }
 
-        float targetLerp = 0.5f; 
-        switch (m_currentWall)
-        {
-            case WallDir.left:
-                targetLerp = 0.0f;
-                break;
-            case WallDir.right:
-                targetLerp = 1.0f;
-                break;
-        }
+        //float targetLerp = 0.5f; 
+        //switch (m_currentWall)
+        //{
+        //    case WallDir.left:
+        //        targetLerp = 0.0f;
+        //        break;
+        //    case WallDir.right:
+        //        targetLerp = 1.0f;
+        //        break;
+        //}
 
+
+        float targetLerp = (Mathf.Sin(Vector3.SignedAngle(transform.forward, direction, Vector3.up) * Mathf.Deg2Rad) * 0.5f) + 0.5f;
+        Debug.Log(targetLerp);
         playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, Mathf.LerpAngle(-30.0f, 30.0f, targetLerp), ref m_tiltVelocity, 0.1f);
 
         //playerCamera.m_zRotation = Mathf.LerpAngle(-30.0f, 30.0f, targetLerp);
@@ -377,5 +411,12 @@ public class PlayerMovement : MonoBehaviour
             movementInput.Normalize();
 
         return movementInput;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.magenta;
+        if (m_isWallRunning)
+            Gizmos.DrawLine(transform.position, transform.position + DEBUGDIRECTION * 4.0f);
     }
 }
