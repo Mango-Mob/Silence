@@ -28,6 +28,11 @@ public class AI_Legs : MonoBehaviour
         m_agent.isStopped = false;
     }
 
+    public void Halt()
+    {
+        m_agent.isStopped = true;
+    }
+
     public bool IsResting()
     {
         return m_agent.velocity.magnitude < 0.15f || m_agent.isStopped;

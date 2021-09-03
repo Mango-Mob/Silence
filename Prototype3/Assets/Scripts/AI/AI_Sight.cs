@@ -96,6 +96,7 @@ public class AI_Sight : MonoBehaviour
         RaycastForRender();
     }
 
+    #region Rendering
     private void RaycastForRender()
     {
         int stepCount = Mathf.RoundToInt(2*m_sightDegrees * m_renderResolution);
@@ -199,6 +200,7 @@ public class AI_Sight : MonoBehaviour
         }
         return (Quaternion.AngleAxis(angle, Vector3.up)) * transform.forward;
     }
+    #endregion
 
     public bool IsWithinSight(Vector3 position)
     {
@@ -300,6 +302,11 @@ public class AI_Sight : MonoBehaviour
                 m_interests.RemoveAt(i);
             }
         }
+    }
+
+    public int GetInterestsCount()
+    {
+        return m_interests.Count;
     }
 
     public void OnDrawGizmosSelected()

@@ -112,6 +112,10 @@ public class AI_Hearing : MonoBehaviour
             m_interests.RemoveAt(0);
         }
     }
+    public int GetInterestsCount()
+    {
+        return m_interests.Count;
+    }
 
     private void OnDrawGizmosSelected()
     {

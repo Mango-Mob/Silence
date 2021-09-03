@@ -4,15 +4,24 @@ using UnityEngine;
 
 public class AI_Brain : MonoBehaviour
 {
+    public enum AI_State
+    {
+        Idle, ReturnToPatrol, Patrol, Hunting, Engaging
+    }
+    [Header("AI Statistics")]
+    public AI_State m_myState;
+
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
     private AI_Sight m_mySight;
+    private AI_Hearing m_myHearing;
 
     private Vector3 m_targetWaypoint;
     [Header("Vision Variables")]
     public float m_visionSpeed = 5.0f;
     public Vector3 m_visionMinEuler;
     public Vector3 m_visionMaxEuler;
+    
     private int m_visionDir = 1;
 
     // Start is called before the first frame update
@@ -20,6 +29,7 @@ public class AI_Brain : MonoBehaviour
     {
         m_myLegs = GetComponentInChildren<AI_Legs>();
         m_mySight = GetComponentInChildren<AI_Sight>();
+        m_myHearing = GetComponentInChildren<AI_Hearing>();
     }
 
     // Update is called once per frame
@@ -69,8 +79,64 @@ public class AI_Brain : MonoBehaviour
                 }
                 break;
         }
-        
     }
+
+    private void BehaviorUpdate()
+    {
+        switch (m_myState)
+        {
+            case AI_State.Idle:
+                SensorCheck();
+                break;
+            case AI_State.ReturnToPatrol:
+                break;
+            case AI_State.Patrol:
+                break;
+            case AI_State.Hunting:
+                break;
+            case AI_State.Engaging:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SensorCheck()
+    {
+        if(m_mySight.GetInterestsCount() > 0 || m_myHearing.GetInterestsCount() > 0)
+        {
+            //Something of interest!
+            m_myLegs.Halt();
+            //m_myLegs.SetTargetOrientation(Quaternion.LookRotation());
+        }
+
+    }
+
+    private void TransitionBehaviorTo(AI_State state)
+    {
+        if (m_myState == state)
+            return;
+
+        switch (state)
+        {
+            case AI_State.Idle:
+                break;
+            case AI_State.ReturnToPatrol:
+                break;
+            case AI_State.Patrol:
+                break;
+            case AI_State.Hunting:
+                break;
+            case AI_State.Engaging:
+                break;
+            default:
+                break;
+        }
+
+        m_myState = state;
+    }
+
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
