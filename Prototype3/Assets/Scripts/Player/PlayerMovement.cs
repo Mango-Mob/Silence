@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public Volume processVolume;
     public PlayerCamera playerCamera { get; private set; }
 
     [Header("Movement Attributes")]
@@ -197,6 +199,8 @@ public class PlayerMovement : MonoBehaviour
 
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
+        processVolume.weight = 1.0f - m_crouchLerp;
+
         playerCamera.m_camera.transform.localPosition = new Vector3(0, Mathf.Lerp(0.0f, m_cameraOffset, m_crouchLerp), 0);
 
         float newHeight = Mathf.Lerp(0.5f, 2.0f, m_crouchLerp);
@@ -365,7 +369,7 @@ public class PlayerMovement : MonoBehaviour
 
                 m_velocity.x = perp.x;
                 m_velocity.z = perp.y;
-                m_velocity.y = 0.0f;
+                m_velocity.y = -m_wallRunGravity;
 
                 m_velocity += direction * 1.0f;
             }
