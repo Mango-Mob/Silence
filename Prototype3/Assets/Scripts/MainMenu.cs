@@ -22,7 +22,6 @@ public class MainMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         m_sliders.Add(m_masterVolume, AudioManager.VolumeChannel.MASTER);
         m_sliders.Add(m_soundEffectVolume, AudioManager.VolumeChannel.SOUND_EFFECT);
         m_sliders.Add(m_musicVolume, AudioManager.VolumeChannel.MUSIC);
