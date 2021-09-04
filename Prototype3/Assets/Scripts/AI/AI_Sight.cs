@@ -6,25 +6,6 @@ using UnityEngine;
 
 public class AI_Sight : MonoBehaviour
 {
-    private struct SightInterest
-    {
-        public SightInterest(Collider _reference, Vector3 _location)
-        {
-            reference = _reference;
-            lastKnownLocation = _location;
-            m_lastSeen = DateTime.Now;
-        }
-
-        public Collider reference;
-        public Vector3 lastKnownLocation;
-        public DateTime m_lastSeen;
-
-        public double GetAge()
-        {
-            return (DateTime.Now - m_lastSeen).TotalSeconds;
-        }
-    }
-
     private struct ViewCastInfo
     {
         public ViewCastInfo(bool _hit, Vector3 _point, float _dist, float _angle)
@@ -69,8 +50,8 @@ public class AI_Sight : MonoBehaviour
     public float m_edgeDistThreshold;
     private Mesh m_viewMesh;
 
-    private List<Collider> m_collidersWithin;
-    private List<SightInterest> m_interests = new List<SightInterest>();
+    public List<Collider> m_collidersWithinSight;
+    public List<AI_Interest> m_interests = new List<AI_Interest>();
 
     private GUIStyle m_debugStyle;
     // Start is called before the first frame update
@@ -276,21 +257,21 @@ public class AI_Sight : MonoBehaviour
             }
         }
 
-        if(m_collidersWithin != null)
+        if(m_collidersWithinSight != null)
         {
             //Check if there is a differnce between frames
-            foreach (var item in m_collidersWithin)
+            foreach (var item in m_collidersWithinSight)
             {
                 //If the new list doesn't contain the item
                 if (!newList.Contains(item))
                 {
                     //Log it as an interest
-                    m_interests.Add(new SightInterest(item, item.transform.position));
+                    m_interests.Add(new AI_Interest(item.transform.position, item));
                 }
             }
         }
-        
-        m_collidersWithin = newList;
+
+        m_collidersWithinSight = newList;
     }
 
     private void RemoveFromInterest(Collider reference)
@@ -304,11 +285,6 @@ public class AI_Sight : MonoBehaviour
         }
     }
 
-    public int GetInterestsCount()
-    {
-        return m_interests.Count;
-    }
-
     public void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -318,9 +294,9 @@ public class AI_Sight : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(m_sightDegrees, 0, 0) * transform.forward) * m_sightRange);
         Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(-m_sightDegrees, 0, 0) * transform.forward) * m_sightRange);
 
-        if(m_collidersWithin != null)
+        if(m_collidersWithinSight != null)
         {
-            foreach (var item in m_collidersWithin)
+            foreach (var item in m_collidersWithinSight)
             {
                 Gizmos.color = Color.green;
                 Gizmos.DrawLine(transform.position, item.transform.position);

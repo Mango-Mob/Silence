@@ -1,12 +1,54 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum InterestType
+{
+    Unknown, Player,
+}
+public struct AI_Interest
+{
+    public AI_Interest(Vector3 _position, Collider _reference = null)
+    {
+        lastKnownLocation = _position;
+        reference = _reference;
+        lastSeen = DateTime.Now;
+
+        if (reference == null)
+        {
+            interestType = InterestType.Unknown;
+        }
+        else if (reference.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            interestType = InterestType.Player;
+        }
+        else
+        {
+            interestType = InterestType.Unknown;
+        }
+    }
+
+    public Collider reference;
+    public DateTime lastSeen;
+    public Vector3 lastKnownLocation;
+    public InterestType interestType;
+
+    public double GetAge()
+    {
+        return (DateTime.Now - lastSeen).TotalSeconds;
+    }
+    public void Refesh()
+    {
+        lastSeen = DateTime.Now;
+    }
+}
 
 public class AI_Brain : MonoBehaviour
 {
     public enum AI_State
     {
-        Idle, ReturnToPatrol, Patrol, Hunting, Engaging
+        Idle, ReturnToPatrol, Patrol, Investigating, Hunting, Engaging
     }
     [Header("AI Statistics")]
     public AI_State m_myState;
@@ -21,7 +63,11 @@ public class AI_Brain : MonoBehaviour
     public float m_visionSpeed = 5.0f;
     public Vector3 m_visionMinEuler;
     public Vector3 m_visionMaxEuler;
-    
+    public Transform m_neckTransform;
+    private Coroutine m_neckRoutine;
+
+    private AI_Interest? m_currentInterest;
+    private float m_idleTimer = 0f;
     private int m_visionDir = 1;
 
     // Start is called before the first frame update
@@ -30,31 +76,14 @@ public class AI_Brain : MonoBehaviour
         m_myLegs = GetComponentInChildren<AI_Legs>();
         m_mySight = GetComponentInChildren<AI_Sight>();
         m_myHearing = GetComponentInChildren<AI_Hearing>();
+        m_idleTimer += 3.5f;
     }
 
     // Update is called once per frame
     void Update()
     {
         VisionUpdate();
-
-        if (m_myRoute != null)
-        {   
-            if(!m_myRoute.IsOnPath(transform.position))
-            {
-                m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
-                if (m_myLegs.IsResting())
-                {
-                    m_myLegs.SetTargetDestinaton(m_targetWaypoint);
-                }
-            }
-            else if(m_myLegs.IsResting())
-            {
-                m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
-                m_myLegs.SetTargetDestinaton(m_targetWaypoint);
-            }
-
-            m_myLegs.LookAtTarget();
-        }
+        BehaviorUpdate();
     }
     private void VisionUpdate()
     {
@@ -86,11 +115,58 @@ public class AI_Brain : MonoBehaviour
         switch (m_myState)
         {
             case AI_State.Idle:
+                m_idleTimer -= Time.deltaTime;
+                if(m_idleTimer <= 0)
+                {
+                    if(m_myRoute.IsOnPath(transform.position))
+                    {
+                        TransitionBehaviorTo(AI_State.Patrol);
+                    }
+                    else
+                    {
+                        TransitionBehaviorTo(AI_State.ReturnToPatrol);
+                    }
+                }
                 SensorCheck();
                 break;
             case AI_State.ReturnToPatrol:
+                if(m_myLegs.IsResting())
+                {
+                    TransitionBehaviorTo(AI_State.Idle);
+                }
+                SensorCheck();
                 break;
             case AI_State.Patrol:
+                if (m_myLegs.IsResting())
+                {
+                    TransitionBehaviorTo(AI_State.Idle);
+                }
+                SensorCheck();
+                break;
+            case AI_State.Investigating:
+                Vector3 direction = (m_currentInterest.Value.lastKnownLocation - transform.position).normalized;
+                m_myLegs.SetTargetOrientation(Quaternion.LookRotation(direction, Vector3.up));
+                
+                if(m_mySight.IsWithinSight(m_currentInterest.Value.lastKnownLocation) 
+                    && m_mySight.CanRaycastToPosition(m_currentInterest.Value.lastKnownLocation))
+                {
+                    //Found Location
+                    m_myLegs.Halt();
+                    if(m_neckRoutine == null)
+                    {
+                        m_neckRoutine = StartCoroutine(
+                        NeckTowardsAngle(new Vector3(0, -45, 0),
+                        NeckTowardsAngle(new Vector3(0, 45, 0),
+                        NeckTowardsAngle(new Vector3(0, 0, 0)
+                        ))));
+
+                        TransitionBehaviorTo(AI_State.Idle);
+                    }
+                }
+                else
+                {
+                    m_myLegs.SetTargetDestinaton(m_currentInterest.Value.lastKnownLocation);
+                }
                 break;
             case AI_State.Hunting:
                 break;
@@ -103,13 +179,34 @@ public class AI_Brain : MonoBehaviour
 
     private void SensorCheck()
     {
-        if(m_mySight.GetInterestsCount() > 0 || m_myHearing.GetInterestsCount() > 0)
+        if(m_mySight.m_interests.Count > 0 || m_myHearing.m_interests.Count > 0)
         {
             //Something of interest!
             m_myLegs.Halt();
-            //m_myLegs.SetTargetOrientation(Quaternion.LookRotation());
-        }
 
+            AI_Interest? youngest;
+            if(m_mySight.m_interests.Count == 0)
+            {
+                youngest = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
+            }
+            else if (m_myHearing.m_interests.Count == 0)
+            {
+                youngest = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
+            }
+            else
+            {
+                AI_Interest A = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
+                AI_Interest B = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
+                youngest = (A.GetAge() < B.GetAge()) ? A : B;
+            }
+            
+            m_currentInterest = youngest;
+            TransitionBehaviorTo(AI_State.Investigating);
+        }
+        else
+        {
+            m_myLegs.SetTargetDestinaton(m_targetWaypoint);
+        }
     }
 
     private void TransitionBehaviorTo(AI_State state)
@@ -120,10 +217,20 @@ public class AI_Brain : MonoBehaviour
         switch (state)
         {
             case AI_State.Idle:
+                m_targetWaypoint = transform.position;
+                m_idleTimer += 3.5f;
+                m_myLegs.Halt();
+                m_myLegs.LookAtTarget();
                 break;
             case AI_State.ReturnToPatrol:
+                m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
+                m_myLegs.SetTargetDestinaton(m_targetWaypoint);
+                m_myLegs.LookAtTarget();
                 break;
             case AI_State.Patrol:
+                m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
+                m_myLegs.SetTargetDestinaton(m_targetWaypoint);
+                m_myLegs.LookAtTarget();
                 break;
             case AI_State.Hunting:
                 break;
@@ -136,6 +243,25 @@ public class AI_Brain : MonoBehaviour
         m_myState = state;
     }
 
+    public IEnumerator NeckTowardsAngle(Vector3 euler, IEnumerator routineAfterwards = null)
+    {
+        while(m_neckTransform.localRotation != Quaternion.Euler(euler.x, euler.y, euler.z))
+        {
+            m_neckTransform.localRotation = Quaternion.RotateTowards(m_neckTransform.localRotation, Quaternion.Euler(euler.x, euler.y, euler.z), m_visionSpeed);
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (routineAfterwards != null)
+        {
+            StartCoroutine(routineAfterwards);
+        }
+        else
+        {
+            m_neckRoutine = null;
+        }
+        
+        yield return null;
+    }
 
     private void OnDrawGizmos()
     {

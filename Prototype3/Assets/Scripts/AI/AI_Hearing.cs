@@ -6,26 +6,6 @@ using UnityEngine;
 
 public class AI_Hearing : MonoBehaviour
 {
-    private struct NoiseInterest
-    {
-        public NoiseInterest(Vector3 _location)
-        {
-            lastKnownLocation = _location;
-            m_lastSeen = DateTime.Now;
-        }
-
-        public Vector3 lastKnownLocation;
-        public DateTime m_lastSeen;
-
-        public double GetAge()
-        {
-            return (DateTime.Now - m_lastSeen).TotalSeconds;
-        }
-        public void Refesh()
-        {
-            m_lastSeen = DateTime.Now;
-        }
-    }
 
     public float m_hearingRange;
     public GameObject debugGameObject;
@@ -34,7 +14,7 @@ public class AI_Hearing : MonoBehaviour
 
     private AI_Sight m_sight;
     private NoiseListener m_myListener;
-    private List<NoiseInterest> m_interests = new List<NoiseInterest>();
+    public List<AI_Interest> m_interests = new List<AI_Interest>();
     private GUIStyle m_debugStyle;
 
     private void Awake()
@@ -56,7 +36,7 @@ public class AI_Hearing : MonoBehaviour
     {
         if(InputManager.instance.IsKeyDown(KeyType.J))
         {
-            NoiseManager.instance.CreateNoise(debugGameObject.transform.position, 2.0f, debugGameObject.layer, 1.0f);
+            NoiseManager.instance.CreateNoise(debugGameObject.transform.position, 25.0f, debugGameObject.layer, 0.1f);
         }
         
         DetectionUpdate();
@@ -84,7 +64,7 @@ public class AI_Hearing : MonoBehaviour
             }
             if (!found)
             {
-                m_interests.Add(new NoiseInterest(item));
+                m_interests.Add(new AI_Interest(item));
             }
         }
         m_myListener.Clear();
@@ -111,10 +91,6 @@ public class AI_Hearing : MonoBehaviour
         {
             m_interests.RemoveAt(0);
         }
-    }
-    public int GetInterestsCount()
-    {
-        return m_interests.Count;
     }
 
     private void OnDrawGizmosSelected()

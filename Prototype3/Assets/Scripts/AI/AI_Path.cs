@@ -43,7 +43,7 @@ public class AI_Path : MonoBehaviour
             //dotAP/dotAB
             float t = Vector3.Dot(AP, AB)/Vector3.Dot(AB,AB);
             Vector3 proj = A + t * AB;
-            if((t >= 0f || t <= 1f) && Vector3.Distance(P, proj) < 2f)
+            if((t >= 0f && t <= 1f) && Vector3.Distance(P, proj) < 0.5f)
             {
                 return true;
             }
