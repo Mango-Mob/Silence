@@ -139,10 +139,11 @@ public class NoiseManager : MonoBehaviour
 
     public void OnDrawGizmos()
     {
-        foreach (var item in m_noises)
-        {
-            Gizmos.color = Color.white;
-            Gizmos.DrawWireSphere(item.m_position, item.m_range);
-        }
+        if(m_noises != null)
+            foreach (var item in m_noises)
+            {
+                Gizmos.color = Color.white;
+                Gizmos.DrawWireSphere(item.m_position, item.m_range);
+            }
     }
 }

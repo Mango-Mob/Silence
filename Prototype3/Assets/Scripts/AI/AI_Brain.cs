@@ -48,10 +48,14 @@ public class AI_Brain : MonoBehaviour
 {
     public enum AI_State
     {
-        Idle, ReturnToPatrol, Patrol, Investigating, Hunting, Engaging
+        Idle, ReturnToPatrol, Patrol, Alert, Investigating, Hunting, Engaging
     }
     [Header("AI Statistics")]
     public AI_State m_myState;
+    public float m_attentionBuild;
+    public float m_attentionDecay;
+    public float m_aggressionBuild;
+    public float m_aggressionDecay;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
@@ -65,12 +69,14 @@ public class AI_Brain : MonoBehaviour
     public Vector3 m_visionMaxEuler;
     public Transform m_neckTransform;
     public SpriteRenderer m_attentionBar;
+    public SpriteRenderer m_agressionBar;
     private Coroutine m_neckRoutine;
 
     private AI_Interest? m_currentInterest;
     private float m_idleTimer = 0f;
     private int m_visionDir = 1;
-    private float m_attention;
+    private float m_attention = 0.0f;
+    private float m_agression = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -86,6 +92,8 @@ public class AI_Brain : MonoBehaviour
     {
         VisionUpdate();
         BehaviorUpdate();
+
+        m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
     }
 
@@ -171,10 +179,40 @@ public class AI_Brain : MonoBehaviour
                 {
                     m_myLegs.SetTargetDestinaton(m_currentInterest.Value.lastKnownLocation);
                 }
+                SensorCheck();
+                Decay();
                 break;
             case AI_State.Hunting:
+                if(m_currentInterest != null)
+                {
+                    if(m_myLegs.IsResting())
+                    {
+                        m_targetWaypoint = m_myLegs.GetRandomPointAround(m_currentInterest.Value.lastKnownLocation, 5.0f);
+                        m_myLegs.SetTargetDestinaton(m_targetWaypoint);
+                        m_myLegs.LookAtTarget();
+                    }
+                }
+                else
+                {
+                    if (m_myLegs.IsResting())
+                    {
+                        m_targetWaypoint = m_myLegs.GetRandomPointAround(transform.position, 5.0f);
+                        m_myLegs.SetTargetDestinaton(m_targetWaypoint);
+                        m_myLegs.LookAtTarget();
+                    }
+                }
+                SensorCheck();
+                Decay();
+                break;
+            case AI_State.Alert:
+                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange / 2.0f, false);
+                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                SensorCheck();
                 break;
             case AI_State.Engaging:
+                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange / 2.0f, false);
+                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                SensorCheck();
                 break;
             default:
                 break;
@@ -183,13 +221,81 @@ public class AI_Brain : MonoBehaviour
 
     private void SensorCheck()
     {
-        if(m_mySight.m_interests.Count > 0 || m_myHearing.m_interests.Count > 0)
+        foreach (var item in m_mySight.m_collidersWithinSight)
+        {
+            if(item.gameObject.layer == LayerMask.NameToLayer("Player"))
+            {
+                //Found player!
+                float distMod = 1.0f - Vector3.Distance(item.transform.position, transform.position) / m_mySight.m_sightRange;
+                distMod = Mathf.Clamp(distMod, 0.0f, 1.0f);
+
+                if (m_attention < 1.0f)
+                {
+                    m_attention += distMod * m_attentionBuild * Time.deltaTime;
+
+                    if (m_attention > 0.0f)
+                    {
+                        m_targetWaypoint = item.transform.position;
+                        TransitionBehaviorTo(AI_State.Alert);
+                    }
+
+                    if (m_attention > 1.0f)
+                    {
+                        m_agression += m_attention - 1.0f;
+                        m_attention = 1.0f;
+                    }
+                }
+                else
+                {
+                    m_targetWaypoint = item.transform.position;
+                    m_agression = Mathf.Clamp(m_agression + distMod * m_aggressionBuild * Time.deltaTime, 0.0f, 1.0f);
+                }
+
+                if (m_agression == 1.0f)
+                {
+                    TransitionBehaviorTo(AI_State.Engaging);
+                }
+                return;
+            }
+        }
+
+        if(m_mySight.m_interests.Count > 0)
+        {
+            if(m_currentInterest == null)
+            {
+                m_currentInterest = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
+                return;
+            }
+
+            if(m_currentInterest.Value.GetAge() > m_mySight.m_interests[m_mySight.m_interests.Count - 1].GetAge())
+            {
+                m_currentInterest = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
+            }
+            else if(m_mySight.m_interests[m_mySight.m_interests.Count - 1].interestType == InterestType.Player)
+            {
+                m_currentInterest = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
+            }
+        }
+
+        if (m_agression > 0.0f)
+        {
+            TransitionBehaviorTo(AI_State.Hunting);
+        }
+        else if (m_attention > 1.0f)
+        {
+            TransitionBehaviorTo(AI_State.Investigating);
+        }
+    }
+
+    private void HearingCheck()
+    {
+        if (m_mySight.m_interests.Count > 0 || m_myHearing.m_interests.Count > 0)
         {
             //Something of interest!
             m_myLegs.Halt();
 
             AI_Interest? youngest;
-            if(m_mySight.m_interests.Count == 0)
+            if (m_mySight.m_interests.Count == 0)
             {
                 youngest = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
             }
@@ -203,10 +309,32 @@ public class AI_Brain : MonoBehaviour
                 AI_Interest B = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
                 youngest = (A.GetAge() < B.GetAge()) ? A : B;
             }
-            
+
             m_currentInterest = youngest;
             m_attention = 1.0f;
-            TransitionBehaviorTo(AI_State.Investigating);
+
+            switch (m_myState)
+            {
+                case AI_State.Idle:
+                    TransitionBehaviorTo(AI_State.Investigating);
+                    break;
+                case AI_State.ReturnToPatrol:
+                    TransitionBehaviorTo(AI_State.Investigating);
+                    break;
+                case AI_State.Patrol:
+                    TransitionBehaviorTo(AI_State.Investigating);
+                    break;
+                case AI_State.Alert:
+                    break;
+                case AI_State.Investigating:
+                    break;
+                case AI_State.Hunting:
+                    break;
+                case AI_State.Engaging:
+                    break;
+                default:
+                    break;
+            }
         }
         else
         {
@@ -237,6 +365,8 @@ public class AI_Brain : MonoBehaviour
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
+            case AI_State.Alert:
+                break;
             case AI_State.Investigating:
                 m_idleTimer += 3.5f;
                 break;
@@ -249,6 +379,32 @@ public class AI_Brain : MonoBehaviour
         }
 
         m_myState = state;
+    }
+
+    private void Decay()
+    {
+        if(m_agression > 0.0f)
+        {
+            m_agression -= Time.deltaTime * m_aggressionDecay;
+            if (m_agression < 0.0f)
+            {
+                m_attention += m_agression;
+                m_agression = 0;
+            }
+        }
+        else if(m_attention > 0.0f)
+        {
+            m_attention -= Time.deltaTime * m_attentionDecay;
+            m_attention = Mathf.Clamp(m_attention, 0.0f, 1.0f);
+        }
+        else
+        {
+            TransitionBehaviorTo(AI_State.ReturnToPatrol);
+        }
+    }
+    public bool Kill(Vector3 killerPosition)
+    {
+        return false;
     }
 
     public IEnumerator NeckTowardsAngle(Vector3 euler, IEnumerator routineAfterwards = null)
