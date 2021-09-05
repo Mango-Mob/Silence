@@ -809,6 +809,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f9f11050eefe6904f92d62c93ad9347e, type: 3}
+--- !u!4 &1262942568 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5543048717292505129, guid: 904339685d432444da54e5eaab9f109a,
+    type: 3}
+  m_PrefabInstance: {fileID: 7157590577263703030}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1298290619 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2370760938869177775, guid: 25fa96bb7a3d9404a922b4c4cfa56905,
@@ -86895,6 +86901,11 @@ PrefabInstance:
       propertyPath: m_myRoute
       value: 
       objectReference: {fileID: 389730325}
+    - target: {fileID: 3022805217224183233, guid: 904339685d432444da54e5eaab9f109a,
+        type: 3}
+      propertyPath: m_neckTransform
+      value: 
+      objectReference: {fileID: 1262942568}
     - target: {fileID: 3296360825472065662, guid: 904339685d432444da54e5eaab9f109a,
         type: 3}
       propertyPath: debugGameObject

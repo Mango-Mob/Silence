@@ -64,11 +64,13 @@ public class AI_Brain : MonoBehaviour
     public Vector3 m_visionMinEuler;
     public Vector3 m_visionMaxEuler;
     public Transform m_neckTransform;
+    public SpriteRenderer m_attentionBar;
     private Coroutine m_neckRoutine;
 
     private AI_Interest? m_currentInterest;
     private float m_idleTimer = 0f;
     private int m_visionDir = 1;
+    private float m_attention;
 
     // Start is called before the first frame update
     void Start()
@@ -84,7 +86,9 @@ public class AI_Brain : MonoBehaviour
     {
         VisionUpdate();
         BehaviorUpdate();
+        m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
     }
+
     private void VisionUpdate()
     {
         Quaternion min = Quaternion.Euler(m_visionMinEuler.x, m_visionMinEuler.y, m_visionMinEuler.z);
@@ -201,6 +205,7 @@ public class AI_Brain : MonoBehaviour
             }
             
             m_currentInterest = youngest;
+            m_attention = 1.0f;
             TransitionBehaviorTo(AI_State.Investigating);
         }
         else
@@ -231,6 +236,9 @@ public class AI_Brain : MonoBehaviour
                 m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
+                break;
+            case AI_State.Investigating:
+                m_idleTimer += 3.5f;
                 break;
             case AI_State.Hunting:
                 break;
