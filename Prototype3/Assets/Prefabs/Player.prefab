@@ -106,7 +106,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -634,6 +634,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a5814d0fc16834ea67ee56e5bab342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  processVolume: {fileID: 0}
   m_speed: 5
   m_crouchSpeed: 3
   m_jumpSpeed: 7.5
@@ -652,7 +653,7 @@ MonoBehaviour:
   m_grappleEnd: {fileID: 6377491267872094487}
   m_wallColliderL: {fileID: 996317606}
   m_wallColliderR: {fileID: 720680546}
-  m_wallRunGravity: 3
+  m_wallRunGravity: 1
   m_cameraTiltSpeed: 1
 --- !u!114 &1263316920918627367
 MonoBehaviour:
@@ -1450,7 +1451,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 1, b: 0.098634005, a: 1}
+      key0: {r: 0, g: 0.7725491, b: 1, a: 1}
       key1: {r: 0, g: 0.7715509, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
