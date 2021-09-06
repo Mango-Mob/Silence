@@ -140,6 +140,7 @@ public class AI_Brain : MonoBehaviour
                     }
                 }
                 SensorCheck();
+                HearingCheck();
                 break;
             case AI_State.ReturnToPatrol:
                 if(m_myLegs.IsResting())
@@ -147,6 +148,7 @@ public class AI_Brain : MonoBehaviour
                     TransitionBehaviorTo(AI_State.Idle);
                 }
                 SensorCheck();
+                HearingCheck();
                 break;
             case AI_State.Patrol:
                 if (m_myLegs.IsResting())
@@ -154,32 +156,30 @@ public class AI_Brain : MonoBehaviour
                     TransitionBehaviorTo(AI_State.Idle);
                 }
                 SensorCheck();
+                HearingCheck();
                 break;
             case AI_State.Investigating:
                 Vector3 direction = (m_currentInterest.Value.lastKnownLocation - transform.position).normalized;
                 m_myLegs.SetTargetOrientation(Quaternion.LookRotation(direction, Vector3.up));
-                
-                if(m_mySight.IsWithinSight(m_currentInterest.Value.lastKnownLocation) 
+
+                if(m_currentInterest == null)
+                {
+                    m_targetWaypoint = m_myLegs.GetRandomPointAround(transform.position, 5.0f);
+                    m_myLegs.SetTargetDestinaton(m_targetWaypoint);
+                    m_myLegs.LookAtTarget();
+                }
+                else if(m_mySight.IsWithinSight(m_currentInterest.Value.lastKnownLocation) 
                     && m_mySight.CanRaycastToPosition(m_currentInterest.Value.lastKnownLocation))
                 {
                     //Found Location
                     m_myLegs.Halt();
-                    if(m_neckRoutine == null)
-                    {
-                        m_neckRoutine = StartCoroutine(
-                        NeckTowardsAngle(new Vector3(0, -45, 0),
-                        NeckTowardsAngle(new Vector3(0, 45, 0),
-                        NeckTowardsAngle(new Vector3(0, 0, 0)
-                        ))));
-
-                        TransitionBehaviorTo(AI_State.Idle);
-                    }
                 }
                 else
                 {
                     m_myLegs.SetTargetDestinaton(m_currentInterest.Value.lastKnownLocation);
                 }
                 SensorCheck();
+                HearingCheck();
                 Decay();
                 break;
             case AI_State.Hunting:
@@ -202,17 +202,20 @@ public class AI_Brain : MonoBehaviour
                     }
                 }
                 SensorCheck();
+                HearingCheck();
                 Decay();
                 break;
             case AI_State.Alert:
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange / 2.0f, false);
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 SensorCheck();
+                HearingCheck();
                 break;
             case AI_State.Engaging:
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange / 2.0f, false);
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 SensorCheck();
+                HearingCheck();
                 break;
             default:
                 break;
@@ -289,56 +292,42 @@ public class AI_Brain : MonoBehaviour
 
     private void HearingCheck()
     {
-        if (m_mySight.m_interests.Count > 0 || m_myHearing.m_interests.Count > 0)
+        if (m_myHearing.m_interests.Count > 0)
         {
-            //Something of interest!
-            m_myLegs.Halt();
-
-            AI_Interest? youngest;
-            if (m_mySight.m_interests.Count == 0)
+            if (m_currentInterest == null)
             {
-                youngest = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
-            }
-            else if (m_myHearing.m_interests.Count == 0)
-            {
-                youngest = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
-            }
-            else
-            {
-                AI_Interest A = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
-                AI_Interest B = m_mySight.m_interests[m_mySight.m_interests.Count - 1];
-                youngest = (A.GetAge() < B.GetAge()) ? A : B;
+                m_currentInterest = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
+                return;
             }
 
-            m_currentInterest = youngest;
-            m_attention = 1.0f;
+            if (m_currentInterest.Value.GetAge() > m_myHearing.m_interests[m_myHearing.m_interests.Count - 1].GetAge())
+            {
+                m_currentInterest = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
+            }
+            else if (m_myHearing.m_interests[m_myHearing.m_interests.Count - 1].interestType == InterestType.Player)
+            {
+                m_currentInterest = m_myHearing.m_interests[m_myHearing.m_interests.Count - 1];
+            }
+
+            if (m_attention >= 0)
+            {
+                m_attention = 1.0f;
+            }
 
             switch (m_myState)
             {
                 case AI_State.Idle:
-                    TransitionBehaviorTo(AI_State.Investigating);
-                    break;
                 case AI_State.ReturnToPatrol:
-                    TransitionBehaviorTo(AI_State.Investigating);
-                    break;
                 case AI_State.Patrol:
                     TransitionBehaviorTo(AI_State.Investigating);
                     break;
+                default:
                 case AI_State.Alert:
-                    break;
                 case AI_State.Investigating:
-                    break;
                 case AI_State.Hunting:
-                    break;
                 case AI_State.Engaging:
                     break;
-                default:
-                    break;
             }
-        }
-        else
-        {
-            m_myLegs.SetTargetDestinaton(m_targetWaypoint);
         }
     }
 

@@ -22,7 +22,10 @@ public class NoiseManager : MonoBehaviour
             return _instance;
         }
     }
-
+    public static bool HasInstance()
+    {
+        return _instance != null;
+    }
     public void CreateNoise(Vector3 position, float range, LayerMask layer, float duration, float delay = 0.0f)
     {
         m_noises.Add(new Noise(position, range, delay, duration, layer));

@@ -46,7 +46,8 @@ public class AI_Hearing : MonoBehaviour
 
     private void OnDestroy()
     {
-        NoiseManager.instance.UnSubscribe(m_myListener);
+        if(NoiseManager.HasInstance())
+            NoiseManager.instance.UnSubscribe(m_myListener);
     }
 
     private void DetectionUpdate()
