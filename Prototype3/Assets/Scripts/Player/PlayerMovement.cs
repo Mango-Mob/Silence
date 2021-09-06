@@ -1,9 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
+
+public enum HeadAbility
+{
+    none,
+    invisibility,
+}
+public enum ArmAbility
+{
+    none,
+    grapplingHook,
+}
+public enum LegsAbility
+{
+    none,
+    wallrun,
+}
 
 public class PlayerMovement : MonoBehaviour
 {
+    public Volume processVolume;
     public PlayerCamera playerCamera { get; private set; }
 
     [Header("Movement Attributes")]
@@ -29,6 +47,11 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController charController;
     private bool m_grounded = false;
 
+    [Header("Abilities")]
+    public HeadAbility m_headAbility;
+    public ArmAbility m_armAbility;
+    public LegsAbility m_legsAbility;
+
     [Header("Grappling Hook")]
     public LineRenderer m_grappleSource;
     public float m_grappleRange = 15.0f;
@@ -47,8 +70,12 @@ public class PlayerMovement : MonoBehaviour
     public float m_wallRunGravity = 3.0f;
     private bool m_isWallRunning = false;
     public float m_cameraTiltSpeed = 1.0f;
+
     private WallDir m_currentWall = WallDir.none;
+
+
     private float m_tiltVelocity = 0.0f;
+    private bool m_wallRunRefreshed = true;
 
     enum HookMode
     {
@@ -165,14 +192,18 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-
-            if (Vector3.Distance(playerCamera.m_camera.transform.position, m_grappleHitPos) > 5.0f || m_hookMode != HookMode.pulling)
-            m_velocity.y -= ((!m_isWallRunning) ? m_playerGravity : m_wallRunGravity) * Time.deltaTime;
+            //if (Vector3.Distance(playerCamera.m_camera.transform.position, m_grappleHitPos) > 5.0f || m_hookMode != HookMode.pulling)
+            if (m_hookMode != HookMode.pulling)
+                m_velocity.y -= ((!m_isWallRunning) ? m_playerGravity : m_wallRunGravity) * Time.deltaTime;
+            else
 
             // Velocity damping
             m_velocity.x -= m_velocity.x * m_damping * Time.deltaTime;
             m_velocity.z -= m_velocity.z * m_damping * Time.deltaTime;
         }
+
+        if ((charController.collisionFlags & CollisionFlags.CollidedAbove) != 0 && m_velocity.y > 0 && m_hookMode != HookMode.pulling)
+            m_velocity.y = 0;
 
         // Jumping
         if (charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
@@ -193,18 +224,44 @@ public class PlayerMovement : MonoBehaviour
 
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
+        processVolume.weight = 1.0f - m_crouchLerp;
+
         playerCamera.m_camera.transform.localPosition = new Vector3(0, Mathf.Lerp(0.0f, m_cameraOffset, m_crouchLerp), 0);
 
         float newHeight = Mathf.Lerp(0.5f, 2.0f, m_crouchLerp);
         float deltaHeight = newHeight - charController.height;
         charController.height = newHeight;
 
-        GrapplingHook();
-        WallRunning();
+        Abilities();
 
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
     }
-
+    private void Abilities()
+    {
+        switch (m_headAbility)
+        {
+            case HeadAbility.invisibility:
+                break;
+            default:
+                break;
+        }
+        switch (m_armAbility)
+        {
+            case ArmAbility.grapplingHook:
+                GrapplingHook();
+                break;
+            default:
+                break;
+        }
+        switch (m_legsAbility)
+        {
+            case LegsAbility.wallrun:
+                WallRunning();
+                break;
+            default:
+                break;
+        }
+    }
     private void GrapplingHook()
     {
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
@@ -242,6 +299,7 @@ public class PlayerMovement : MonoBehaviour
                 if (m_grappleShotLerp >= 1.0f)
                 {
                     m_hookMode = HookMode.pulling;
+                    m_isWallRunning = false;
                     m_velocity = Vector3.zero;
                 }
                 break;
@@ -267,7 +325,7 @@ public class PlayerMovement : MonoBehaviour
                 if (distance < 1.5f /*((charController.collisionFlags & CollisionFlags.CollidedAbove) != 0 || (charController.collisionFlags & CollisionFlags.CollidedSides) != 0)*/)
                 {
                     m_hookMode = HookMode.retracting;
-                    m_velocity /= 20.0f;
+                    m_velocity /= 5.0f;
                 }
                 break;
             case HookMode.retracting:
@@ -288,28 +346,21 @@ public class PlayerMovement : MonoBehaviour
     }
     private void WallRunning()
     {
-        if (InputManager.instance.IsKeyPressed(KeyType.SPACE) && !m_grounded)
-        {
-            Transform sideToCheck;
-            if (InputManager.instance.IsKeyPressed(KeyType.A) && !InputManager.instance.IsKeyPressed(KeyType.D))
-                sideToCheck = m_wallColliderL;
-            else if (!InputManager.instance.IsKeyPressed(KeyType.A) && InputManager.instance.IsKeyPressed(KeyType.D))
-                sideToCheck = m_wallColliderR;
-            else
-            {
-                m_isWallRunning = false;
-                m_currentWall = WallDir.none;
-                return;
-            }
+        Vector3 direction = transform.forward;
 
+        if (m_grounded)
+            m_wallRunRefreshed = true;
+
+        if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed) || m_isWallRunning) && !m_grounded)
+        {
             Collider closestCollider = null;
-            Collider[] colliders = Physics.OverlapSphere(sideToCheck.position, 0.5f, m_headCollisionMask);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
 
             float smallestDistance = 20.0f;
 
             foreach (var collider in colliders)
             {
-                float distance = Vector3.Distance(sideToCheck.position, collider.ClosestPointOnBounds(sideToCheck.position));
+                float distance = Vector3.Distance(transform.position, collider.ClosestPointOnBounds(transform.position));
                 if (distance < smallestDistance)
                 {
                     smallestDistance = distance;
@@ -317,26 +368,51 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
 
+            if (InputManager.instance.IsKeyDown(KeyType.SPACE) && m_isWallRunning)
+            {
+                m_isWallRunning = false;
+                m_currentWall = WallDir.none;
+
+                Vector3 jumpDir = transform.forward;
+                m_velocity = transform.forward * m_speed;
+                m_velocity.y = m_jumpSpeed;
+
+                return;
+            }
+
             if (closestCollider != null)
             {
-                m_isWallRunning = true;
-
-                Vector3 direction = (closestCollider.ClosestPointOnBounds(sideToCheck.position) - transform.position);
+                direction = (closestCollider.ClosestPoint(transform.position) - transform.position);
                 direction.y = 0;
                 direction.Normalize();
 
-                Vector2 perp = ((sideToCheck == m_wallColliderR) ? 1.0f : -1.0f) * Vector2.Perpendicular(new Vector2(direction.x, direction.z)) * m_speed;
+                if (!m_isWallRunning)
+                {
+                    Vector3 localDirection = direction.x * transform.forward + direction.z * transform.right;
+                    if (localDirection.z < 0)
+                    {
+                        m_currentWall = WallDir.left;
+                    }
+                    else if (localDirection.z > 0)
+                    {
+                        m_currentWall = WallDir.right;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                m_isWallRunning = true;
+                m_wallRunRefreshed = false;
+
+                Vector2 perp = ((m_currentWall == WallDir.right) ? 1.0f : -1.0f) * Vector2.Perpendicular(new Vector2(direction.x, direction.z)) * m_speed;
 
                 m_velocity.x = perp.x;
                 m_velocity.z = perp.y;
-                m_velocity.y = 0.0f;
+                m_velocity.y = -m_wallRunGravity;
 
                 m_velocity += direction * 1.0f;
-
-                if (sideToCheck == m_wallColliderR)
-                    m_currentWall = WallDir.right;
-                else
-                    m_currentWall = WallDir.left;
             }
             else
             {
@@ -350,20 +426,8 @@ public class PlayerMovement : MonoBehaviour
             m_currentWall = WallDir.none;
         }
 
-        float targetLerp = 0.5f; 
-        switch (m_currentWall)
-        {
-            case WallDir.left:
-                targetLerp = 0.0f;
-                break;
-            case WallDir.right:
-                targetLerp = 1.0f;
-                break;
-        }
-
+        float targetLerp = (Mathf.Sin(Vector3.SignedAngle(transform.forward, direction, Vector3.up) * Mathf.Deg2Rad) * 0.5f) + 0.5f;
         playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, Mathf.LerpAngle(-30.0f, 30.0f, targetLerp), ref m_tiltVelocity, 0.1f);
-
-        //playerCamera.m_zRotation = Mathf.LerpAngle(-30.0f, 30.0f, targetLerp);
     }
     private Vector2 GetMovementInput()
     {
@@ -377,5 +441,17 @@ public class PlayerMovement : MonoBehaviour
             movementInput.Normalize();
 
         return movementInput;
+    }
+    public void SetHeadAbility(HeadAbility _ability)
+    {
+        m_headAbility = _ability;
+    }
+    public void SetArmAbility(ArmAbility _ability)
+    {
+        m_armAbility = _ability;
+    }
+    public void SetLegsAbility(LegsAbility _ability)
+    {
+        m_legsAbility = _ability;
     }
 }

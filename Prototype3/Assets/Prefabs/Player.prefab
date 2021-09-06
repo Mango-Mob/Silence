@@ -106,7 +106,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -579,6 +579,7 @@ GameObject:
   - component: {fileID: 1263316920918627360}
   - component: {fileID: 1263316920918627362}
   - component: {fileID: 1263316920918627367}
+  - component: {fileID: 2276973143171636034}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -634,6 +635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a5814d0fc16834ea67ee56e5bab342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  processVolume: {fileID: 0}
   m_speed: 5
   m_crouchSpeed: 3
   m_jumpSpeed: 7.5
@@ -644,6 +646,9 @@ MonoBehaviour:
   m_headCollisionMask:
     serializedVersion: 2
     m_Bits: 1
+  m_headAbility: 0
+  m_armAbility: 0
+  m_legsAbility: 0
   m_grappleSource: {fileID: 8701003371863419759}
   m_grappleRange: 12
   m_grappleAcceleration: 40
@@ -652,7 +657,7 @@ MonoBehaviour:
   m_grappleEnd: {fileID: 6377491267872094487}
   m_wallColliderL: {fileID: 996317606}
   m_wallColliderR: {fileID: 720680546}
-  m_wallRunGravity: 3
+  m_wallRunGravity: 1
   m_cameraTiltSpeed: 1
 --- !u!114 &1263316920918627367
 MonoBehaviour:
@@ -669,6 +674,23 @@ MonoBehaviour:
   m_mouseSentivityX: 15
   m_mouseSentivityY: 15
   m_zRotation: 0
+--- !u!114 &2276973143171636034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263316920918627366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c57c537cda78854d9fb63beccb576e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentInteractable: {fileID: 0}
+  m_interactRange: 3
+  m_layerMask:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1 &1263316921449098093
 GameObject:
   m_ObjectHideFlags: 0
@@ -1450,7 +1472,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 1, b: 0.098634005, a: 1}
+      key0: {r: 0, g: 0.7725491, b: 1, a: 1}
       key1: {r: 0, g: 0.7715509, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
