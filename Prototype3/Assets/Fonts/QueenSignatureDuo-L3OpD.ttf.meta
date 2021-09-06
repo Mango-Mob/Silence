@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: b1d90e791fb52354ead9ac027ff9e2d8
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Queen Signature Duo
+  fontNames:
+  - Queen Signature Duo
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 99fcc3339a15e6c439d7a6e64fe33d1a, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

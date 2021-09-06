@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD:Prototype3/Assets/Prefabs/References.meta
 guid: 1815be81fa16dd14794fe69edf70e06c
+=======
+guid: cdbf0c118a452a548b51bdead3a230ab
+>>>>>>> main:Prototype3/Assets/Animations/Transitions.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
