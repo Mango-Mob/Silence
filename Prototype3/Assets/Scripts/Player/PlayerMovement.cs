@@ -3,6 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+public enum HeadAbility
+{
+    none,
+    invisibility,
+}
+public enum ArmAbility
+{
+    none,
+    grapplingHook,
+}
+public enum LegsAbility
+{
+    none,
+    wallrun,
+}
+
 public class PlayerMovement : MonoBehaviour
 {
     public Volume processVolume;
@@ -30,6 +46,11 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 m_velocity = Vector3.zero;
     private CharacterController charController;
     private bool m_grounded = false;
+
+    [Header("Abilities")]
+    public HeadAbility m_headAbility;
+    public ArmAbility m_armAbility;
+    public LegsAbility m_legsAbility;
 
     [Header("Grappling Hook")]
     public LineRenderer m_grappleSource;
@@ -171,14 +192,18 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-
-            if (Vector3.Distance(playerCamera.m_camera.transform.position, m_grappleHitPos) > 5.0f || m_hookMode != HookMode.pulling)
-            m_velocity.y -= ((!m_isWallRunning) ? m_playerGravity : m_wallRunGravity) * Time.deltaTime;
+            //if (Vector3.Distance(playerCamera.m_camera.transform.position, m_grappleHitPos) > 5.0f || m_hookMode != HookMode.pulling)
+            if (m_hookMode != HookMode.pulling)
+                m_velocity.y -= ((!m_isWallRunning) ? m_playerGravity : m_wallRunGravity) * Time.deltaTime;
+            else
 
             // Velocity damping
             m_velocity.x -= m_velocity.x * m_damping * Time.deltaTime;
             m_velocity.z -= m_velocity.z * m_damping * Time.deltaTime;
         }
+
+        if ((charController.collisionFlags & CollisionFlags.CollidedAbove) != 0 && m_velocity.y > 0 && m_hookMode != HookMode.pulling)
+            m_velocity.y = 0;
 
         // Jumping
         if (charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
@@ -207,12 +232,36 @@ public class PlayerMovement : MonoBehaviour
         float deltaHeight = newHeight - charController.height;
         charController.height = newHeight;
 
-        GrapplingHook();
-        WallRunning();
+        Abilities();
 
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
     }
-
+    private void Abilities()
+    {
+        switch (m_headAbility)
+        {
+            case HeadAbility.invisibility:
+                break;
+            default:
+                break;
+        }
+        switch (m_armAbility)
+        {
+            case ArmAbility.grapplingHook:
+                GrapplingHook();
+                break;
+            default:
+                break;
+        }
+        switch (m_legsAbility)
+        {
+            case LegsAbility.wallrun:
+                WallRunning();
+                break;
+            default:
+                break;
+        }
+    }
     private void GrapplingHook()
     {
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
@@ -276,7 +325,7 @@ public class PlayerMovement : MonoBehaviour
                 if (distance < 1.5f /*((charController.collisionFlags & CollisionFlags.CollidedAbove) != 0 || (charController.collisionFlags & CollisionFlags.CollidedSides) != 0)*/)
                 {
                     m_hookMode = HookMode.retracting;
-                    m_velocity /= 20.0f;
+                    m_velocity /= 5.0f;
                 }
                 break;
             case HookMode.retracting:
@@ -295,9 +344,6 @@ public class PlayerMovement : MonoBehaviour
         m_grappleEnd.position = Vector3.Lerp(m_grappleSource.transform.position, m_grappleHitPos, m_grappleShotLerp);
 
     }
-
-    private Vector3 DEBUGDIRECTION;
-
     private void WallRunning()
     {
         Vector3 direction = transform.forward;
@@ -340,10 +386,6 @@ public class PlayerMovement : MonoBehaviour
                 direction.y = 0;
                 direction.Normalize();
 
-                // REMOVE LATER
-                DEBUGDIRECTION = direction;
-                
-
                 if (!m_isWallRunning)
                 {
                     Vector3 localDirection = direction.x * transform.forward + direction.z * transform.right;
@@ -360,7 +402,6 @@ public class PlayerMovement : MonoBehaviour
                         return;
                     }
                 }
-
 
                 m_isWallRunning = true;
                 m_wallRunRefreshed = false;
@@ -385,23 +426,8 @@ public class PlayerMovement : MonoBehaviour
             m_currentWall = WallDir.none;
         }
 
-        //float targetLerp = 0.5f; 
-        //switch (m_currentWall)
-        //{
-        //    case WallDir.left:
-        //        targetLerp = 0.0f;
-        //        break;
-        //    case WallDir.right:
-        //        targetLerp = 1.0f;
-        //        break;
-        //}
-
-
         float targetLerp = (Mathf.Sin(Vector3.SignedAngle(transform.forward, direction, Vector3.up) * Mathf.Deg2Rad) * 0.5f) + 0.5f;
-        Debug.Log(targetLerp);
         playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, Mathf.LerpAngle(-30.0f, 30.0f, targetLerp), ref m_tiltVelocity, 0.1f);
-
-        //playerCamera.m_zRotation = Mathf.LerpAngle(-30.0f, 30.0f, targetLerp);
     }
     private Vector2 GetMovementInput()
     {
@@ -416,11 +442,16 @@ public class PlayerMovement : MonoBehaviour
 
         return movementInput;
     }
-
-    private void OnDrawGizmos()
+    public void SetHeadAbility(HeadAbility _ability)
     {
-        Gizmos.color = Color.magenta;
-        if (m_isWallRunning)
-            Gizmos.DrawLine(transform.position, transform.position + DEBUGDIRECTION * 4.0f);
+        m_headAbility = _ability;
+    }
+    public void SetArmAbility(ArmAbility _ability)
+    {
+        m_armAbility = _ability;
+    }
+    public void SetLegsAbility(LegsAbility _ability)
+    {
+        m_legsAbility = _ability;
     }
 }
