@@ -1,11 +1,17 @@
 fileFormatVersion: 2
-guid: bb9a17acca82c1e46b294905b9f1a06d
+guid: 6416b189318c5884c9eb5c36e283a7b2
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable:
   - first:
       74: 1827226128182048838
-    second: MD_Idle
+    second: Take 001
+  - first:
+      74: -203655887218126122
+    second: MD_Alert_(RaiseGun)
+  - first:
+      74: -4947423121284497530
+    second: MD_T
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -35,11 +41,40 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: MD_Idle
+      name: MD_T
       takeName: Take 001
       internalID: 0
       firstFrame: 0
-      lastFrame: 257
+      lastFrame: 100
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: MD_Alert_(RaiseGun)
+      takeName: mixamo.com
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 26
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
