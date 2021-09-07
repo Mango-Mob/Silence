@@ -5182,16 +5182,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1263316920918627362, guid: f9f11050eefe6904f92d62c93ad9347e,
         type: 3}
-      propertyPath: m_armAbility
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1263316920918627362, guid: f9f11050eefe6904f92d62c93ad9347e,
-        type: 3}
-      propertyPath: m_legsAbility
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1263316920918627362, guid: f9f11050eefe6904f92d62c93ad9347e,
-        type: 3}
       propertyPath: processVolume
       value: 
       objectReference: {fileID: 599978126}
@@ -5200,6 +5190,5 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 56644508, guid: f9f11050eefe6904f92d62c93ad9347e, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f9f11050eefe6904f92d62c93ad9347e, type: 3}
