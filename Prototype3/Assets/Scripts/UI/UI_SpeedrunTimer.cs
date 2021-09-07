@@ -30,6 +30,8 @@ public class UI_SpeedrunTimer : UI_Element
 #if UNITY_EDITOR
         fastestTime = TimeSpan.Zero;
 #endif
+        // temp
+        StartTimer();
     }
     // Start is called before the first frame update
     public void StartTimer()

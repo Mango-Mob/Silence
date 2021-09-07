@@ -117,6 +117,19 @@ public class ShowIfPropertyDrawer : PropertyDrawer
                         break;
                 }
                 break;
+            case "AbilitySlot":
+                switch (condition)
+                {
+                    case ShowIfCond.Equal: return a.Equals(b);
+                    case ShowIfCond.NotEqual: return !a.Equals(b);
+                    case ShowIfCond.MoreThan: return (int)a > (int)b;
+                    case ShowIfCond.LessThan: return (int)a < (int)b;
+                    case ShowIfCond.MoreThanOrEqual: return (int)a >= (int)b;
+                    case ShowIfCond.LessThanOrEqual: return (int)a <= (int)b;
+                    default:
+                        break;
+                }
+                break;
             default:
                 Debug.LogWarning($"Type not supported with ShowIfAttribute: {type.Name}.");
                 return false;

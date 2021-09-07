@@ -58,7 +58,8 @@ public class GameManager : MonoBehaviour
     public static Vector2 m_sensitivity = new Vector2(-400.0f, -250.0f);
 
     public bool useGamepad = false;
-    internal bool enableTimer = false;
+    public float lootValue = 0.0f;
+    internal bool enableTimer = true; // temp true
 
     // Start is called before the first frame update
     void Start()
