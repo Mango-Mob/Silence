@@ -460,27 +460,27 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.2905943
+      value: 5.429854
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.2905943
+      value: 5.429854
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.2905943
+      value: 5.429854
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.008
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
@@ -490,7 +490,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0981
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 376e37739fbbed448900ef66b20f6f00,
         type: 3}
@@ -6039,6 +6039,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2481223011254445122, guid: f9f11050eefe6904f92d62c93ad9347e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8701003371863419759, guid: f9f11050eefe6904f92d62c93ad9347e,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -6058,6 +6063,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8863726190394648734, guid: f9f11050eefe6904f92d62c93ad9347e,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.946
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 56644508, guid: f9f11050eefe6904f92d62c93ad9347e, type: 3}

@@ -32,6 +32,9 @@ public class PlayerMovement : MonoBehaviour
     public float m_damping = 0.5f;
     public float m_airAcceleration = 1.0f;
 
+    public float m_crouchVisibility = 0.5f;
+    public float m_visibility { get; private set; } // Much requested visibility variable 
+
     private Vector3 m_lastPosition;
     private Vector3 m_calculatedVelocity = Vector3.zero;
 
@@ -73,9 +76,16 @@ public class PlayerMovement : MonoBehaviour
 
     private WallDir m_currentWall = WallDir.none;
 
-
     private float m_tiltVelocity = 0.0f;
     private bool m_wallRunRefreshed = true;
+
+    [Header("Invisibility")]
+    public float m_invisibilityDuration = 5.0f;
+    private float m_invisibilityTimer = 0.0f;
+    public float m_invisibilityCD = 45.0f;
+    private float m_invisibilityCDTimer = 0.0f;
+
+    private bool m_isInvisible = false;
 
     enum HookMode
     {
@@ -233,16 +243,23 @@ public class PlayerMovement : MonoBehaviour
         charController.height = newHeight;
 
         Abilities();
+        StealthDetection();
 
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
+    }
+    private void StealthDetection()
+    {
+        m_visibility = (m_crouchVisibility + m_crouchLerp * (1.0f - m_crouchVisibility)) * (m_isInvisible ? 0.0f : 1.0f);
     }
     private void Abilities()
     {
         switch (m_headAbility)
         {
             case HeadAbility.invisibility:
+                Invisibility();
                 break;
             default:
+                m_isInvisible = false;
                 break;
         }
         switch (m_armAbility)
@@ -428,6 +445,36 @@ public class PlayerMovement : MonoBehaviour
 
         float targetLerp = (Mathf.Sin(Vector3.SignedAngle(transform.forward, direction, Vector3.up) * Mathf.Deg2Rad) * 0.5f) + 0.5f;
         playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, Mathf.LerpAngle(-30.0f, 30.0f, targetLerp), ref m_tiltVelocity, 0.1f);
+    }
+    private void Invisibility()
+    {
+        if (m_isInvisible)
+        {
+            if (m_invisibilityTimer > 0.0f)
+            {
+                m_invisibilityTimer -= Time.deltaTime;
+            }
+            else
+            {
+                m_isInvisible = false;
+                m_invisibilityCDTimer = m_invisibilityCD;
+            }
+        }
+        else
+        {
+            if (m_invisibilityCDTimer > 0.0f)
+            {
+                m_invisibilityCDTimer -= Time.deltaTime;
+            }
+            else
+            {
+                if (InputManager.instance.IsKeyDown(KeyType.Q))
+                {
+                    m_invisibilityTimer = m_invisibilityDuration;
+                    m_isInvisible = true;
+                }
+            }
+        }
     }
     private Vector2 GetMovementInput()
     {
