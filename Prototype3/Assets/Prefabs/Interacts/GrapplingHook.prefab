@@ -109,7 +109,7 @@ MonoBehaviour:
   m_interactFunction:
     m_PersistentCalls:
       m_Calls: []
-  m_imageIcon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_imageIcon: {fileID: 21300000, guid: 1cb4e59714c90c24d86e26a687c1cdef, type: 3}
   m_slot: 2
   m_headAbility: 0
   m_armAbility: 1

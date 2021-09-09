@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public Volume processVolume;
     public PlayerCamera playerCamera { get; private set; }
+    public Animator m_animator { get; private set; }
 
     [Header("Movement Attributes")]
     public float m_speed = 8.0f;
@@ -106,6 +107,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        m_animator = GetComponentInChildren<Animator>();
         m_lastPosition = transform.position;
         charController = GetComponent<CharacterController>();
         playerCamera = GetComponent<PlayerCamera>();
@@ -129,6 +131,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 moveDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
         float currentSpeed = (m_crouchLerp < 0.5f) ? m_crouchSpeed : m_speed;
+
+        m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
+        m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
+
 
         if (leftGround)
         {
@@ -232,6 +238,8 @@ public class PlayerMovement : MonoBehaviour
         else if (!Physics.CheckSphere(playerCamera.m_camera.transform.position, charController.radius * 1.1f, m_headCollisionMask))
             m_crouchLerp += Time.deltaTime * 10.0f;
 
+        m_animator.SetBool("IsSneaking", m_isCrouching);
+
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
         processVolume.weight = 1.0f - m_crouchLerp;
@@ -289,7 +297,10 @@ public class PlayerMovement : MonoBehaviour
             RaycastHit rayHit;
 
             if (m_hookMode != HookMode.idle && m_hookMode != HookMode.retracting)
+            {
                 m_hookMode = HookMode.retracting;
+                m_animator.SetTrigger("ZipPullStart");
+            }
 
             if (m_hookMode == HookMode.idle)
             {
@@ -305,6 +316,7 @@ public class PlayerMovement : MonoBehaviour
                     m_grappleHitPos = playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward * m_grappleRange;
                     m_grappleSource.enabled = true;
                 }
+                m_animator.SetTrigger("ZipFire");
             }
         }
 
@@ -318,6 +330,7 @@ public class PlayerMovement : MonoBehaviour
                     m_hookMode = HookMode.pulling;
                     m_isWallRunning = false;
                     m_velocity = Vector3.zero;
+                    m_animator.SetTrigger("ZipPullStart");
                 }
                 break;
             case HookMode.firing_missed:
@@ -325,6 +338,7 @@ public class PlayerMovement : MonoBehaviour
                 if (m_grappleShotLerp >= 1.0f)
                 {
                     m_hookMode = HookMode.retracting;
+                    m_animator.SetTrigger("ZipPullStart");
                 }
                 break;
             case HookMode.pulling:
@@ -469,7 +483,8 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 if (InputManager.instance.IsKeyDown(KeyType.Q))
-                {
+                { 
+                    m_animator.SetTrigger("Snap");
                     m_invisibilityTimer = m_invisibilityDuration;
                     m_isInvisible = true;
                 }
