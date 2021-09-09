@@ -48,7 +48,7 @@ public class AI_Brain : MonoBehaviour
 {
     public enum AI_State
     {
-        Idle, ReturnToPatrol, Patrol, Alert, Investigating, Hunting, Engaging
+        Idle, ReturnToPatrol, Patrol, Alert, Investigating, Hunting, Engaging, Dead
     }
     [Header("AI Statistics")]
     public AI_State m_myState;
@@ -56,6 +56,9 @@ public class AI_Brain : MonoBehaviour
     public float m_attentionDecay;
     public float m_aggressionBuild;
     public float m_aggressionDecay;
+    public float m_immuneRange = 160;
+    public float m_maxKillDist = 2.5f;
+    public Transform m_testKillLoc;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
@@ -99,6 +102,34 @@ public class AI_Brain : MonoBehaviour
 
         m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
+
+        if(InputManager.instance.IsKeyDown(KeyType.K))
+        {
+            KillGuard(m_testKillLoc.position);
+        }
+    }
+
+    public bool KillGuard(Vector3 killerLoc)
+    {
+        Quaternion lookTo = Quaternion.LookRotation((killerLoc - transform.position).normalized);
+        float dist = Vector3.Distance(killerLoc, transform.position);
+        if(Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo)) >= m_immuneRange && dist <= m_maxKillDist)
+        {
+            TransitionBehaviorTo(AI_State.Dead);
+            return true;
+        }
+        else if (dist <= m_maxKillDist)
+        {
+            m_currentInterest = new AI_Interest(killerLoc);
+            TransitionBehaviorTo(AI_State.Hunting);
+            m_agression = 1.0f;
+            m_attention = 1.0f;
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void VisionUpdate()
@@ -220,6 +251,8 @@ public class AI_Brain : MonoBehaviour
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 SensorCheck();
                 HearingCheck();
+                break;
+            case AI_State.Dead:
                 break;
             default:
                 break;
@@ -348,8 +381,8 @@ public class AI_Brain : MonoBehaviour
                 m_targetWaypoint = transform.position;
                 m_idleTimer += 3.5f;
                 m_myLegs.m_runMode = false;
+                m_myLegs.SetTargetOrientation(m_myRoute.GetLookDirection(transform.position));
                 m_myLegs.Halt();
-                m_myLegs.LookAtTarget();
                 break;
             case AI_State.ReturnToPatrol:
                 m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
@@ -375,6 +408,13 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
+                break;
+            case AI_State.Dead:
+                m_myLegs.m_runMode = false;
+                m_mySight.gameObject.SetActive(false);
+                m_attentionBar.transform.parent.gameObject.SetActive(false);
+                m_myLegs.Halt();
+                m_animator.SetDead();
                 break;
             default:
                 break;
@@ -404,10 +444,6 @@ public class AI_Brain : MonoBehaviour
             TransitionBehaviorTo(AI_State.ReturnToPatrol);
         }
     }
-    public bool Kill(Vector3 killerPosition)
-    {
-        return false;
-    }
 
     public IEnumerator NeckTowardsAngle(Vector3 euler, IEnumerator routineAfterwards = null)
     {
@@ -433,6 +469,8 @@ public class AI_Brain : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+        Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, m_immuneRange, 0) * transform.forward) * m_maxKillDist);
+        Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, -m_immuneRange, 0) * transform.forward) * m_maxKillDist);
         Gizmos.DrawSphere(m_targetWaypoint, 0.5f);
     }
 }

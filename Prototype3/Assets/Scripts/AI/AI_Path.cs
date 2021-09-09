@@ -5,37 +5,60 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class AI_Path : MonoBehaviour
 {
-    public List<GameObject> m_points;
-    public bool m_showPoints = false;
-    public LineRenderer m_renderer;
-
+    public List<Transform> m_points;
+    public bool ShouldReset = false;
     // Start is called before the first frame update
     void Start()
     {
-        
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            m_points.Add(transform.GetChild(i));
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-#if UNITY_EDITOR
-        int i = 0;
-        m_renderer.positionCount = m_points.Count + 1;
-        m_renderer.enabled = m_showPoints;
-        foreach (var item in m_points)
+        if(ShouldReset)
         {
-            m_renderer.SetPosition(i++, item.transform.position);
-            item.SetActive(m_showPoints);
+            m_points.Clear();
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                m_points.Add(transform.GetChild(i));
+            }
+            ShouldReset = false;
         }
-        m_renderer.SetPosition(i, m_points[0].transform.position);
-#endif
     }
+
+    public void OnDrawGizmos()
+    {
+        for (int i = 0; i < transform.childCount - 1; i++)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(m_points[i].position, m_points[i+1].position);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawRay(m_points[i].position, m_points[i].forward);
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(m_points[i].position, 0.25f);
+        }
+
+        if(m_points.Count > 2)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(m_points[0].position, m_points[m_points.Count - 1].position);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawRay(m_points[m_points.Count - 1].position, m_points[m_points.Count - 1].forward);
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(m_points[m_points.Count - 1].position, 0.25f);
+        }
+    }
+
     public bool IsOnPath(Vector3 P)
     {
         for (int i = 0; i < m_points.Count - 1; i++)
         {
-            Vector3 A = m_points[i].transform.position;
-            Vector3 B = m_points[i + 1].transform.position;
+            Vector3 A = m_points[i].position;
+            Vector3 B = m_points[i + 1].position;
 
             Vector3 AP = P - A;
             Vector3 AB = B - A;
@@ -57,7 +80,7 @@ public class AI_Path : MonoBehaviour
         int result = -1;
         for (int i = 0; i < m_points.Count; i++)
         {
-            float curr = Vector3.Distance(m_points[i].transform.position, position);
+            float curr = Vector3.Distance(m_points[i].position, position);
             if (curr < dist)
             {
                 dist = curr;
@@ -71,7 +94,27 @@ public class AI_Path : MonoBehaviour
         if(result == m_points.Count - 1)
             result = -1;
 
-        return m_points[++result].transform.position;
+        return m_points[++result].position;
+    }
+
+    public Quaternion GetLookDirection(Vector3 position)
+    {
+        if(m_points.Count > 1)
+        {
+            float dist = float.MaxValue;
+            Transform result = m_points[0];
+            foreach (var item in m_points)
+            {
+                float curr = Vector3.Distance(item.position, position);
+                if (curr < dist)
+                {
+                    dist = curr;
+                    result = item;
+                }
+            }
+            return Quaternion.LookRotation(result.forward, Vector3.up);
+        }
+        return Quaternion.identity;
     }
 
     public Vector3 GetClosestWaypoint(Vector3 position)
@@ -80,11 +123,11 @@ public class AI_Path : MonoBehaviour
         Vector3 result = position;
         foreach (var item in m_points)
         {
-            float curr = Vector3.Distance(item.transform.position, position);
+            float curr = Vector3.Distance(item.position, position);
             if(curr < dist)
             {
                 dist = curr;
-                result = item.transform.position;
+                result = item.position;
             }
         }
         return result;
