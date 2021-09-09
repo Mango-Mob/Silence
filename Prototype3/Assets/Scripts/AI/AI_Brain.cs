@@ -61,6 +61,7 @@ public class AI_Brain : MonoBehaviour
     [SerializeField] private AI_Path m_myRoute;
     private AI_Sight m_mySight;
     private AI_Hearing m_myHearing;
+    private AI_Animator m_animator;
 
     private Vector3 m_targetWaypoint;
     [Header("Vision Variables")]
@@ -84,6 +85,7 @@ public class AI_Brain : MonoBehaviour
         m_myLegs = GetComponentInChildren<AI_Legs>();
         m_mySight = GetComponentInChildren<AI_Sight>();
         m_myHearing = GetComponentInChildren<AI_Hearing>();
+        m_animator = GetComponentInChildren<AI_Animator>();
         m_idleTimer += 3.5f;
     }
 
@@ -92,6 +94,8 @@ public class AI_Brain : MonoBehaviour
     {
         VisionUpdate();
         BehaviorUpdate();
+
+        m_animator.SetVelocity(m_myLegs.GetVelocity());
 
         m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
@@ -232,9 +236,11 @@ public class AI_Brain : MonoBehaviour
                 float distMod = 1.0f - Vector3.Distance(item.transform.position, transform.position) / m_mySight.m_sightRange;
                 distMod = Mathf.Clamp(distMod, 0.0f, 1.0f);
 
+                float visMod = item.GetComponent<PlayerMovement>().m_visibility;
+
                 if (m_attention < 1.0f)
                 {
-                    m_attention += distMod * m_attentionBuild * Time.deltaTime;
+                    m_attention += distMod * visMod * m_attentionBuild * Time.deltaTime;
 
                     if (m_attention > 0.0f)
                     {
@@ -341,27 +347,34 @@ public class AI_Brain : MonoBehaviour
             case AI_State.Idle:
                 m_targetWaypoint = transform.position;
                 m_idleTimer += 3.5f;
+                m_myLegs.m_runMode = false;
                 m_myLegs.Halt();
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.ReturnToPatrol:
                 m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
+                m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.Patrol:
                 m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
+                m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.Alert:
+                m_myLegs.m_runMode = true;
                 break;
             case AI_State.Investigating:
+                m_myLegs.m_runMode = true;
                 m_idleTimer += 3.5f;
                 break;
             case AI_State.Hunting:
+                m_myLegs.m_runMode = true;
                 break;
             case AI_State.Engaging:
+                m_myLegs.m_runMode = true;
                 break;
             default:
                 break;

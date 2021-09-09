@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerInteractor : MonoBehaviour
 {
     private PlayerCamera playerCamera;
+    private PlayerMovement playerMovement;
     public GameObject currentInteractable;
     public float m_interactRange = 3.0f;
     public LayerMask m_layerMask;
@@ -13,6 +14,7 @@ public class PlayerInteractor : MonoBehaviour
     void Start()
     {
         playerCamera = GetComponent<PlayerCamera>();
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     // Update is called once per frame
@@ -36,6 +38,7 @@ public class PlayerInteractor : MonoBehaviour
         {
             if (currentInteractable != null && currentInteractable.GetComponent<Interactable>())
             {
+                playerMovement.m_animator.SetTrigger("Grab");
                 currentInteractable.GetComponent<Interactable>().Interact();
             }
         }
