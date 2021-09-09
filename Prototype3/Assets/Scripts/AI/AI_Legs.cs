@@ -7,7 +7,10 @@ using UnityEngine.AI;
 public class AI_Legs : MonoBehaviour
 {
     public float m_maxDegrees;
-    
+    public float m_walkSpeed = 2.5f;
+    public float m_runSpeed = 4.5f;
+    public bool m_runMode = false;
+
     private NavMeshAgent m_agent;
 
     private float m_targetDelay = 1.0f;
@@ -26,6 +29,11 @@ public class AI_Legs : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, m_targetOrientation, m_maxDegrees);
         if(m_targetDelay > 0)
             m_targetDelay -= Time.deltaTime;
+
+        if (m_runMode)
+            m_agent.speed = m_runSpeed;
+        else
+            m_agent.speed = m_walkSpeed;
     }
 
     public void SetTargetDestinaton(Vector3 location, float maxDist = float.MaxValue, bool canFlee = true)
@@ -92,5 +100,26 @@ public class AI_Legs : MonoBehaviour
         }
 
         return transform.position;
+    }
+
+    public Vector2 GetVelocity(Space _relativeTo = Space.Self)
+    {
+        float movementRate = m_agent.velocity.magnitude / m_agent.speed;
+        
+        if (m_runMode)
+            movementRate *= 1.0f;
+        else
+            movementRate *= 0.5f;
+
+        switch (_relativeTo)
+        {
+            case Space.World:
+                return new Vector2(m_agent.velocity.normalized.x, m_agent.velocity.normalized.z) * movementRate;
+            case Space.Self:
+                Vector3 localDirection = (Quaternion.AngleAxis(transform.rotation.eulerAngles.y, -Vector3.up) * m_agent.velocity).normalized;
+                return new Vector2(localDirection.x, localDirection.z) * movementRate;
+            default:
+                return Vector2.zero;
+        }        
     }
 }
