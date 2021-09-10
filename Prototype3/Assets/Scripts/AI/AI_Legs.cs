@@ -92,11 +92,17 @@ public class AI_Legs : MonoBehaviour
         return (m_agent.velocity.magnitude < 0.15f || m_agent.isStopped) && m_targetDelay <= 0;
     }
 
-    public void LookAtTarget()
+    public void LookAtTarget(float ignoreAngleChange = 0.0f)
     {
-        Vector3 direct = m_agent.destination - transform.position;
-        direct.y = 0;
-        m_targetOrientation = Quaternion.LookRotation(direct.normalized, Vector3.up);
+        Quaternion lookTo = Quaternion.LookRotation((m_targetLocation - transform.position).normalized);
+        float angle = Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo));
+            
+        if(angle > ignoreAngleChange)
+        {
+            Vector3 direct = m_agent.destination - transform.position;
+            direct.y = 0;
+            m_targetOrientation = Quaternion.LookRotation(direct.normalized, Vector3.up);
+        }
     }
 
     public void LookAtDirection(Vector3 direction)

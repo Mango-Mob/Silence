@@ -61,6 +61,9 @@ public class AI_Brain : MonoBehaviour
     public Vector3 m_meetingLoc;
     public float m_meetingTime;
     public GameObject m_targetTransform;
+    public float m_timeDelayBetweenShots;
+    public Transform m_shotOrigin;
+    private float m_shotDelay = 0f;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
@@ -111,6 +114,10 @@ public class AI_Brain : MonoBehaviour
     private float m_attention = 0.0f;
     private float m_agression = 0.0f;
 
+    private void Awake()
+    {
+        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Enemy"), LayerMask.NameToLayer("EnemyProjectile"));
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -280,7 +287,17 @@ public class AI_Brain : MonoBehaviour
                 HearingCheck();
                 break;
             case AI_State.Engaging:
+                if (m_shotDelay > 0)
+                {
+                    m_shotDelay -= Time.deltaTime;
+                }
+                else 
+                {
+                    m_shotDelay += m_timeDelayBetweenShots;
+                    m_animator.Shoot();
+                }
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
+                m_myLegs.LookAtTarget(60f);
                 m_targetTransform.transform.position = m_targetWaypoint;
                 SensorCheck();
                 HearingCheck();
@@ -631,6 +648,15 @@ public class AI_Brain : MonoBehaviour
         {
             TransitionBehaviorTo(AI_State.ReturnToPatrol);
         }
+    }
+
+    public void SpawnProjectile(GameObject prefab)
+    {
+        Vector3 direction = (m_targetTransform.transform.position - m_shotOrigin.transform.position).normalized;
+
+        Rigidbody proj = Instantiate(prefab, m_shotOrigin.transform.position, Quaternion.LookRotation(direction, Vector3.up)).GetComponent<Rigidbody>();
+        proj.AddForce(direction * 0.3f, ForceMode.Impulse);
+        m_shotDelay += 0.3f;
     }
 
     private void OnDrawGizmos()
