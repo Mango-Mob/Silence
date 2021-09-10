@@ -60,6 +60,7 @@ public class AI_Brain : MonoBehaviour
     public float m_maxKillDist = 2.5f;
     public Vector3 m_meetingLoc;
     public float m_meetingTime;
+    public GameObject m_targetTransform;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
@@ -135,7 +136,7 @@ public class AI_Brain : MonoBehaviour
         VisionUpdate();
         BehaviorUpdate();
 
-        m_animator.SetVelocity(m_myLegs.GetVelocity());
+        //m_animator.SetVelocity(m_myLegs.GetVelocity());
 
         m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
@@ -281,6 +282,7 @@ public class AI_Brain : MonoBehaviour
             case AI_State.Engaging:
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                m_targetTransform.transform.position = m_targetWaypoint;
                 SensorCheck();
                 HearingCheck();
                 break;
@@ -545,6 +547,8 @@ public class AI_Brain : MonoBehaviour
         if (m_myState == state)
             return;
 
+        m_animator.Disengage();
+
         switch (state)
         {
             case AI_State.Idle:
@@ -574,10 +578,11 @@ public class AI_Brain : MonoBehaviour
                 m_idleTimer += 3.5f;
                 break;
             case AI_State.Hunting:
-                m_myLegs.m_runMode = true;
+                m_myLegs.m_runMode = true; 
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
+                m_animator.Engage();
                 break;
             case AI_State.Dead:
                 m_myLegs.m_runMode = false;

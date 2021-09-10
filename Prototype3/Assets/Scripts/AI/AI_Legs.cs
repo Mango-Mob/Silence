@@ -20,7 +20,7 @@ public class AI_Legs : MonoBehaviour
     void Start()
     {
         m_agent = GetComponentInChildren<NavMeshAgent>();
-        m_agent.isStopped = true;
+        //m_agent.isStopped = true;
     }
 
     // Update is called once per frame
