@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -2982,8 +2982,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10, y: 137}
-  m_SizeDelta: {x: 589.74, y: 445.66}
+  m_AnchoredPosition: {x: 10, y: 124.9}
+  m_SizeDelta: {x: 589.74, y: 470.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1830318862
 MonoBehaviour:
@@ -3017,10 +3017,16 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Seems like there's a whole pile of artifact scraps just sitting in a warehouse.
-    Trouble is, guards are stationed there. Why would they send a couple of bots
-    to a junk pile? But security seems pretty light, so it shouldn't be too hard
-    to snatch whatever they're guarding. \n\n- ION\n"
+  m_Text: 'Seems like there''s a whole pile of artifact scraps just sitting in a
+    warehouse. Trouble is, guards are stationed there. Why would they send a couple
+    of bots to a junk pile? But security seems pretty light, so it shouldn''t be
+    too hard to snatch whatever they''re guarding. I''ll wire you more deets once
+    you get there.
+
+
+    - ION
+
+'
 --- !u!222 &1830318863
 CanvasRenderer:
   m_ObjectHideFlags: 0
