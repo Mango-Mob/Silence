@@ -48,7 +48,7 @@ public class AI_Brain : MonoBehaviour
 {
     public enum AI_State
     {
-        Idle, ReturnToPatrol, Patrol, Alert, Investigating, Hunting, Engaging
+        Idle, ReturnToPatrol, Patrol, Alert, Investigating, Hunting, Engaging, Dead
     }
     [Header("AI Statistics")]
     public AI_State m_myState;
@@ -56,11 +56,15 @@ public class AI_Brain : MonoBehaviour
     public float m_attentionDecay;
     public float m_aggressionBuild;
     public float m_aggressionDecay;
+    public float m_immuneRange = 160;
+    public float m_maxKillDist = 2.5f;
+    public Transform m_testKillLoc;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
     private AI_Sight m_mySight;
     private AI_Hearing m_myHearing;
+    private AI_Animator m_animator;
 
     private Vector3 m_targetWaypoint;
     [Header("Vision Variables")]
@@ -84,6 +88,7 @@ public class AI_Brain : MonoBehaviour
         m_myLegs = GetComponentInChildren<AI_Legs>();
         m_mySight = GetComponentInChildren<AI_Sight>();
         m_myHearing = GetComponentInChildren<AI_Hearing>();
+        m_animator = GetComponentInChildren<AI_Animator>();
         m_idleTimer += 3.5f;
     }
 
@@ -93,8 +98,38 @@ public class AI_Brain : MonoBehaviour
         VisionUpdate();
         BehaviorUpdate();
 
+        m_animator.SetVelocity(m_myLegs.GetVelocity());
+
         m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
+
+        if(InputManager.instance.IsKeyDown(KeyType.K))
+        {
+            KillGuard(m_testKillLoc.position);
+        }
+    }
+
+    public bool KillGuard(Vector3 killerLoc)
+    {
+        Quaternion lookTo = Quaternion.LookRotation((killerLoc - transform.position).normalized);
+        float dist = Vector3.Distance(killerLoc, transform.position);
+        if(Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo)) >= m_immuneRange && dist <= m_maxKillDist)
+        {
+            TransitionBehaviorTo(AI_State.Dead);
+            return true;
+        }
+        else if (dist <= m_maxKillDist)
+        {
+            m_currentInterest = new AI_Interest(killerLoc);
+            TransitionBehaviorTo(AI_State.Hunting);
+            m_agression = 1.0f;
+            m_attention = 1.0f;
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void VisionUpdate()
@@ -217,6 +252,8 @@ public class AI_Brain : MonoBehaviour
                 SensorCheck();
                 HearingCheck();
                 break;
+            case AI_State.Dead:
+                break;
             default:
                 break;
         }
@@ -232,9 +269,11 @@ public class AI_Brain : MonoBehaviour
                 float distMod = 1.0f - Vector3.Distance(item.transform.position, transform.position) / m_mySight.m_sightRange;
                 distMod = Mathf.Clamp(distMod, 0.0f, 1.0f);
 
+                float visMod = item.GetComponent<PlayerMovement>().m_visibility;
+
                 if (m_attention < 1.0f)
                 {
-                    m_attention += distMod * m_attentionBuild * Time.deltaTime;
+                    m_attention += distMod * visMod * m_attentionBuild * Time.deltaTime;
 
                     if (m_attention > 0.0f)
                     {
@@ -341,27 +380,41 @@ public class AI_Brain : MonoBehaviour
             case AI_State.Idle:
                 m_targetWaypoint = transform.position;
                 m_idleTimer += 3.5f;
+                m_myLegs.m_runMode = false;
+                m_myLegs.SetTargetOrientation(m_myRoute.GetLookDirection(transform.position));
                 m_myLegs.Halt();
-                m_myLegs.LookAtTarget();
                 break;
             case AI_State.ReturnToPatrol:
                 m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
+                m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.Patrol:
                 m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
+                m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.Alert:
+                m_myLegs.m_runMode = true;
                 break;
             case AI_State.Investigating:
+                m_myLegs.m_runMode = true;
                 m_idleTimer += 3.5f;
                 break;
             case AI_State.Hunting:
+                m_myLegs.m_runMode = true;
                 break;
             case AI_State.Engaging:
+                m_myLegs.m_runMode = true;
+                break;
+            case AI_State.Dead:
+                m_myLegs.m_runMode = false;
+                m_mySight.gameObject.SetActive(false);
+                m_attentionBar.transform.parent.gameObject.SetActive(false);
+                m_myLegs.Halt();
+                m_animator.SetDead();
                 break;
             default:
                 break;
@@ -391,10 +444,6 @@ public class AI_Brain : MonoBehaviour
             TransitionBehaviorTo(AI_State.ReturnToPatrol);
         }
     }
-    public bool Kill(Vector3 killerPosition)
-    {
-        return false;
-    }
 
     public IEnumerator NeckTowardsAngle(Vector3 euler, IEnumerator routineAfterwards = null)
     {
@@ -420,6 +469,8 @@ public class AI_Brain : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+        Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, m_immuneRange, 0) * transform.forward) * m_maxKillDist);
+        Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, -m_immuneRange, 0) * transform.forward) * m_maxKillDist);
         Gizmos.DrawSphere(m_targetWaypoint, 0.5f);
     }
 }

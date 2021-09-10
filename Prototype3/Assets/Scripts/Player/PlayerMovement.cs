@@ -268,6 +268,7 @@ public class PlayerMovement : MonoBehaviour
                 break;
             default:
                 m_isInvisible = false;
+                m_invisibilityTimer = 0.0f;
                 break;
         }
         switch (m_armAbility)
