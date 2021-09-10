@@ -9,6 +9,7 @@ public class PlayerInteractor : MonoBehaviour
     public GameObject currentInteractable;
     public float m_interactRange = 3.0f;
     public LayerMask m_layerMask;
+    public bool m_hasKnife = true;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +42,18 @@ public class PlayerInteractor : MonoBehaviour
                 playerMovement.m_animator.SetTrigger("Grab");
                 currentInteractable.GetComponent<Interactable>().Interact();
             }
+        }
+
+        if (InputManager.instance.GetMouseDown(MouseButton.LEFT) && m_hasKnife)
+        {
+            if (currentInteractable != null && currentInteractable.GetComponent<AI_Brain>())
+            {
+                if (currentInteractable.GetComponent<AI_Brain>().KillGuard(transform.position))
+                {
+                    m_hasKnife = false;
+                }
+            }
+            playerMovement.m_animator.SetTrigger("Stab");
         }
     }
 }

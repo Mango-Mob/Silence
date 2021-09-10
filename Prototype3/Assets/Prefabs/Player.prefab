@@ -710,7 +710,8 @@ MonoBehaviour:
   m_interactRange: 3
   m_layerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 513
+  m_hasKnife: 1
 --- !u!1 &1359088570751359070
 GameObject:
   m_ObjectHideFlags: 0
