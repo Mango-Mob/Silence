@@ -136,7 +136,7 @@ public class AI_Brain : MonoBehaviour
         VisionUpdate();
         BehaviorUpdate();
 
-        //m_animator.SetVelocity(m_myLegs.GetVelocity());
+        m_animator.SetVelocity(m_myLegs.GetVelocity());
 
         m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
@@ -281,7 +281,6 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
-                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 m_targetTransform.transform.position = m_targetWaypoint;
                 SensorCheck();
                 HearingCheck();
@@ -334,7 +333,16 @@ public class AI_Brain : MonoBehaviour
                 float distMod = 1.0f - Vector3.Distance(item.transform.position, transform.position) / m_mySight.m_sightRange;
                 distMod = Mathf.Clamp(distMod, 0.0f, 1.0f);
 
-                float visMod = item.GetComponent<PlayerMovement>().m_visibility;
+                float visMod;
+                if (item.GetComponent<PlayerMovement>())
+                {
+                    visMod = item.GetComponent<PlayerMovement>().m_visibility;
+                }
+                else
+                {
+                    visMod = 1f;
+                }
+                
 
                 if (m_attention < 1.0f)
                 {
@@ -582,6 +590,7 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
+                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 m_animator.Engage();
                 break;
             case AI_State.Dead:

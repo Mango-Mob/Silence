@@ -374,7 +374,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1972663040}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalRotation: {x: 0, y: 1, z: -0, w: 0}
   m_LocalPosition: {x: 0, y: 2.745, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children:
@@ -827,7 +827,7 @@ Transform:
   m_GameObject: {fileID: 2125913716615244638}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.45, y: 0.45, z: 0.45}
   m_Children:
   - {fileID: 5060361379510063003}
   - {fileID: 2924117445099248693}
@@ -875,6 +875,7 @@ MonoBehaviour:
   HorizVelocityName: HorizontalVelocity
   VertVelocityName: VerticalVelocity
   VelocityNetName: VelocityNet
+  m_aimRig: {fileID: 0}
 --- !u!1 &2181055103666653189
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,6 +2266,7 @@ MonoBehaviour:
   m_maxKillDist: 2.5
   m_meetingLoc: {x: 0, y: 0, z: 0}
   m_meetingTime: 0
+  m_targetTransform: {fileID: 0}
   m_myRoute: {fileID: 0}
   m_visionSpeed: 0.25
   m_visionMinEuler: {x: -20, y: 0, z: 0}
