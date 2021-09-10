@@ -22,6 +22,8 @@ public class LootItem : Interactable
         Debug.Log("Activate");
         m_interactFunction.Invoke();
 
+        FindObjectOfType<UI_MultipleObjectives>().Appear();
+
         GameManager.instance.lootValue += m_lootValue;
         Destroy(gameObject);
     }
