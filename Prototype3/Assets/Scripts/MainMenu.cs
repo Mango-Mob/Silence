@@ -63,8 +63,6 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        HUDManager.instance.gameObject.SetActive(true);
-
         LevelLoader.instance.LoadNewLevel(m_sceneName);
     }
     public void Settings()
