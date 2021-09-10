@@ -35,8 +35,20 @@ public class AI_Legs : MonoBehaviour
         else
             m_agent.speed = m_walkSpeed;
     }
+    public void SetTargetDestinaton(Vector3 location)
+    {
 
-    public void SetTargetDestinaton(Vector3 location, float maxDist = float.MaxValue, bool canFlee = true)
+        if (location != m_targetLocation)
+            m_targetDelay = 1.0f;
+
+        m_agent.isStopped = false;
+
+        m_targetLocation = location;
+
+        m_agent.destination = m_targetLocation;
+    }
+
+    public void SetTargetDestinaton(Vector3 location, float minDist, float maxDist, bool canFlee = true)
     {
         if(location != m_targetLocation)
             m_targetDelay = 1.0f;
@@ -45,13 +57,22 @@ public class AI_Legs : MonoBehaviour
 
         Vector3 direction = (location - transform.position).normalized;
         float dist = Vector3.Distance(transform.position, location);
-        if (dist < maxDist && !canFlee)
+
+        if(dist < maxDist && dist > minDist) //Within
         {
+            //Do nothing
             m_targetLocation = transform.position;
         }
-        else if(dist > maxDist)
+        else if(dist > maxDist) //Too far
         {
-            m_targetLocation = transform.position + direction * maxDist;
+            m_targetLocation = transform.position + direction * maxDist; //Approach
+        }
+        else if(dist < minDist) //Too close
+        {
+            if (canFlee)
+                m_targetLocation = transform.position + direction * minDist; //Flee
+            else
+                m_targetLocation = transform.position; //Do nothing
         }
         else
         {
@@ -121,5 +142,25 @@ public class AI_Legs : MonoBehaviour
             default:
                 return Vector2.zero;
         }        
+    }
+
+    public float GetPathDistTo(Vector3 midPoint)
+    {
+        NavMeshPath path = new NavMeshPath();
+        float distance = 0;
+        if(m_agent.CalculatePath(midPoint, path))
+        {
+            for (int i = 0; i < path.corners.Length - 1; i++)
+            {
+                distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+            }
+            if (path.corners.Length > 1)
+            {
+                int i = path.corners.Length - 2;
+                distance += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+            }
+            return distance;
+        }
+        return -1;
     }
 }

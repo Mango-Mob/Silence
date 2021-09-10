@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,5 +42,11 @@ public class AI_Animator : MonoBehaviour
         m_myAnimator.SetFloat(HorizVelocityName, horiz);
         m_myAnimator.SetFloat(VertVelocityName, vert);
         m_myAnimator.SetFloat(VelocityNetName, net);
+    }
+
+    public void Talk()
+    {
+        if(!m_myAnimator.GetBool("Mutex"))
+            m_myAnimator.SetTrigger("Talk");
     }
 }

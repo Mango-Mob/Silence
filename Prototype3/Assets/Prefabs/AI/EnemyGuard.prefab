@@ -292,7 +292,7 @@ MonoBehaviour:
   m_memoryDuration: 5
   m_sightLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 768
   m_renderResolution: 0.5
   m_obstacleMask:
     serializedVersion: 2
@@ -317,7 +317,7 @@ MonoBehaviour:
   debugGameObject: {fileID: 0}
   m_recieverLayer:
     serializedVersion: 2
-    m_Bits: 257
+    m_Bits: 769
   m_memoryDuration: 5
 --- !u!1 &1779955248
 GameObject:
@@ -2258,12 +2258,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_myState: 0
   m_attentionBuild: 5
-  m_attentionDecay: 0.25
+  m_attentionDecay: 0.125
   m_aggressionBuild: 5
-  m_aggressionDecay: 0.5
+  m_aggressionDecay: 0.25
   m_immuneRange: 160
   m_maxKillDist: 2.5
-  m_testKillLoc: {fileID: 1779955249}
+  m_meetingLoc: {x: 0, y: 0, z: 0}
+  m_meetingTime: 0
   m_myRoute: {fileID: 0}
   m_visionSpeed: 0.25
   m_visionMinEuler: {x: -20, y: 0, z: 0}
