@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public PlayerCamera playerCamera { get; private set; }
     public Animator m_animator { get; private set; }
+    public LayerMask m_noiseMask;
 
     [Header("Player Death")]
     public string m_nextScreen = "MainMenu";
@@ -64,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
     public float m_maxGrappleSpeed = 20.0f;
     public float m_grappleProjectileSpeed = 5.0f;
     public Transform m_grappleEnd;
+
+    public float m_grappleForgiveDistance = 0.5f;
 
     private Vector3 m_grappleHitPos;
     private HookMode m_hookMode = HookMode.idle;
@@ -147,6 +150,8 @@ public class PlayerMovement : MonoBehaviour
         m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
         m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
 
+        if (m_animator.GetBool("IsRunning"))
+            NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
 
         if (leftGround)
         {
@@ -333,7 +338,17 @@ public class PlayerMovement : MonoBehaviour
 
             if (m_grappleCDTimer <= 0.0f && m_hookMode == HookMode.idle)
             {
+                bool hit = false;
                 if (Physics.Raycast(playerCamera.m_camera.transform.position, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    hit = true;
+                }
+                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward, m_grappleForgiveDistance, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    hit = true;
+                }
+
+                if (hit)
                 {
                     m_grappleHitPos = rayHit.point;
                     m_hookMode = HookMode.firing;
