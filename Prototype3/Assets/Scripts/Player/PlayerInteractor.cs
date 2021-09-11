@@ -40,6 +40,7 @@ public class PlayerInteractor : MonoBehaviour
             if (currentInteractable != null && currentInteractable.GetComponent<Interactable>())
             {
                 playerMovement.m_animator.SetTrigger("Grab");
+                playerMovement.audioAgent.Play("Pickup");
                 NoiseManager.instance.CreateNoise(transform.position, 4.0f, playerMovement.m_noiseMask, Time.deltaTime);
                 currentInteractable.GetComponent<Interactable>().Interact();
             }
@@ -47,15 +48,20 @@ public class PlayerInteractor : MonoBehaviour
 
         if (InputManager.instance.GetMouseDown(MouseButton.LEFT) && m_hasKnife && !playerMovement.m_dead)
         {
-            if (currentInteractable != null && currentInteractable.GetComponent<AI_Brain>())
-            {
-                if (currentInteractable.GetComponent<AI_Brain>().KillGuard(transform.position))
-                {
-                    m_hasKnife = false; 
-                    NoiseManager.instance.CreateNoise(transform.position, 16.0f, playerMovement.m_noiseMask, Time.deltaTime);
-                }
-            }
             playerMovement.m_animator.SetTrigger("Stab");
+            playerMovement.audioAgent.Play("Stab");
+        }
+    }
+
+    public void Stab()
+    {
+        if (currentInteractable != null && currentInteractable.GetComponent<AI_Brain>())
+        {
+            if (currentInteractable.GetComponent<AI_Brain>().KillGuard(transform.position))
+            {
+                m_hasKnife = false;
+                NoiseManager.instance.CreateNoise(transform.position, 16.0f, playerMovement.m_noiseMask, Time.deltaTime);
+            }
         }
     }
 }
