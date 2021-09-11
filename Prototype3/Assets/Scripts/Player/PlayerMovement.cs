@@ -22,6 +22,7 @@ public enum LegsAbility
 public class PlayerMovement : MonoBehaviour
 {
     public PlayerCamera playerCamera { get; private set; }
+    public MultiAudioAgent audioAgent { get; private set; }
     public Animator m_animator { get; private set; }
     public LayerMask m_noiseMask;
 
@@ -118,6 +119,7 @@ public class PlayerMovement : MonoBehaviour
         m_animator = GetComponentInChildren<Animator>();
         charController = GetComponent<CharacterController>();
         playerCamera = GetComponent<PlayerCamera>();
+        audioAgent = GetComponent<MultiAudioAgent>();
         m_cameraOffset = playerCamera.m_camera.transform.localPosition.y;
     }
 
@@ -363,6 +365,7 @@ public class PlayerMovement : MonoBehaviour
                     m_grappleSource.enabled = true;
                 }
                 m_animator.SetTrigger("ZipFire");
+                audioAgent.Play("HookLaunch");
             }
         }
 
@@ -530,11 +533,16 @@ public class PlayerMovement : MonoBehaviour
                 { 
                     m_animator.SetTrigger("Snap");
                     m_invisibilityTimer = m_invisibilityDuration;
-                    m_invisibilityCDTimer = m_invisibilityCD;
-                    m_isInvisible = true;
                 }
             }
         }
+    }
+
+    public void StartInvis()
+    {
+        audioAgent.Play("InvisSnap");
+        m_invisibilityCDTimer = m_invisibilityCD;
+        m_isInvisible = true;
     }
     private Vector2 GetMovementInput()
     {

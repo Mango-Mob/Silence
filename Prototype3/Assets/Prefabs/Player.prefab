@@ -598,6 +598,7 @@ GameObject:
   - component: {fileID: 1263316920918627362}
   - component: {fileID: 1263316920918627367}
   - component: {fileID: 2276973143171636034}
+  - component: {fileID: 7195441363853788580}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -653,6 +654,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a5814d0fc16834ea67ee56e5bab342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_noiseMask:
+    serializedVersion: 2
+    m_Bits: 0
   m_nextScreen: MainMenu
   m_speed: 5
   m_crouchSpeed: 3
@@ -719,6 +723,28 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 513
   m_hasKnife: 1
+--- !u!114 &7195441363853788580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263316920918627366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20c936e73eec43a43969c7948e51a2a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localVolume: 1
+  isMuted: 0
+  audioClips:
+  - {fileID: 8300000, guid: ae42ca1e1af04f0429587909a7487db1, type: 3}
+  - {fileID: 8300000, guid: 07319f9d8d1d688428033182cbf55875, type: 3}
+  - {fileID: 8300000, guid: 34b60605dcc2a9343b9040a6d5026697, type: 3}
+  - {fileID: 8300000, guid: 75477bd5eb6c71c478a0307363dda4b6, type: 3}
+  - {fileID: 8300000, guid: e3e5eb1190663654badd0fcf45d0434a, type: 3}
+  audioPlayersCount: 5
+  channel: 1
 --- !u!1 &1359088570751359070
 GameObject:
   m_ObjectHideFlags: 0
@@ -1798,6 +1824,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3767037010371267288}
   - component: {fileID: 6079495167756617393}
+  - component: {fileID: 4947622238840258682}
   m_Layer: 8
   m_Name: PlayerArms
   m_TagString: Untagged
@@ -1844,6 +1871,55 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &4947622238840258682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4543257497009229922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6a4dbd4c67628a43b05cee5a2151c1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventOne:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2276973143171636034}
+        m_MethodName: Stab
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  eventTwo:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1263316920918627362}
+        m_MethodName: StartInvis
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  eventThree:
+    m_PersistentCalls:
+      m_Calls: []
+  eventFour:
+    m_PersistentCalls:
+      m_Calls: []
+  eventFive:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4558524980692878023
 GameObject:
   m_ObjectHideFlags: 0
