@@ -664,7 +664,7 @@ MonoBehaviour:
   m_headCollisionMask:
     serializedVersion: 2
     m_Bits: 1
-  crouchVolume: {fileID: 0}
+  crouchVolume: {fileID: 4058921834427643254}
   m_headAbility: 0
   m_armAbility: 0
   m_legsAbility: 0
@@ -674,6 +674,7 @@ MonoBehaviour:
   m_maxGrappleSpeed: 20
   m_grappleProjectileSpeed: 5
   m_grappleEnd: {fileID: 6377491267872094487}
+  m_grappleForgiveDistance: 1
   m_grappleCD: 10
   m_grappleCDTimer: 0
   m_wallColliderL: {fileID: 996317606}
