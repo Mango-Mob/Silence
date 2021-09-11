@@ -48,7 +48,7 @@ public class AI_Brain : MonoBehaviour
 {
     public enum AI_State
     {
-        Idle, ReturnToPatrol, Patrol, Alert, Investigating, Hunting, Engaging, Dead
+        Idle, ReturnToPatrol, Patrol, Meeting, Alert, Investigating, Hunting, Engaging, Dead
     }
     [Header("AI Statistics")]
     public AI_State m_myState;
@@ -58,7 +58,12 @@ public class AI_Brain : MonoBehaviour
     public float m_aggressionDecay;
     public float m_immuneRange = 160;
     public float m_maxKillDist = 2.5f;
-    public Transform m_testKillLoc;
+    public Vector3 m_meetingLoc;
+    public float m_meetingTime;
+    public GameObject m_targetTransform;
+    public float m_timeDelayBetweenShots;
+    public Transform m_shotOrigin;
+    private float m_shotDelay = 0f;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
@@ -74,17 +79,57 @@ public class AI_Brain : MonoBehaviour
     public Transform m_neckTransform;
     public SpriteRenderer m_attentionBar;
     public SpriteRenderer m_agressionBar;
-    private Coroutine m_neckRoutine;
 
+    public struct AlliedInfo
+    {
+        public AlliedInfo(AI_Brain _brain)
+        {
+            brain = _brain;
+            foundDead = false;
+            timeOfMeeting = DateTime.Now;
+        }
+
+        public AlliedInfo(AlliedInfo oldInfo)
+        {
+            brain = oldInfo.brain;
+            foundDead = oldInfo.foundDead;
+            timeOfMeeting = DateTime.Now;
+        }
+
+        public AI_Brain brain;
+        public bool foundDead;
+        public DateTime timeOfMeeting;
+
+        public double GetTimeSinceLastMeeting()
+        {
+            return (DateTime.Now - timeOfMeeting).TotalSeconds;
+        }
+    }
+
+    private Dictionary<Collider, AlliedInfo> m_myAllies = new Dictionary<Collider, AlliedInfo>();
+    public AlliedInfo? m_currentMeetingPartner;
     private AI_Interest? m_currentInterest;
     private float m_idleTimer = 0f;
     private int m_visionDir = 1;
     private float m_attention = 0.0f;
     private float m_agression = 0.0f;
 
+    private void Awake()
+    {
+        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Enemy"), LayerMask.NameToLayer("EnemyProjectile"));
+    }
     // Start is called before the first frame update
     void Start()
     {
+        //Search the scene for all allies
+        foreach (var item in FindObjectsOfType<AI_Brain>())
+        {
+            if (item == this)
+                continue;
+
+            m_myAllies.Add(item.GetComponent<Collider>(), new AlliedInfo(item));
+        }
+
         m_myLegs = GetComponentInChildren<AI_Legs>();
         m_mySight = GetComponentInChildren<AI_Sight>();
         m_myHearing = GetComponentInChildren<AI_Hearing>();
@@ -102,11 +147,6 @@ public class AI_Brain : MonoBehaviour
 
         m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
         m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
-
-        if(InputManager.instance.IsKeyDown(KeyType.K))
-        {
-            KillGuard(m_testKillLoc.position);
-        }
     }
 
     public bool KillGuard(Vector3 killerLoc)
@@ -241,18 +281,59 @@ public class AI_Brain : MonoBehaviour
                 Decay();
                 break;
             case AI_State.Alert:
-                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange / 2.0f, false);
+                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 SensorCheck();
                 HearingCheck();
                 break;
             case AI_State.Engaging:
-                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange / 2.0f, false);
-                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                if (m_shotDelay > 0)
+                {
+                    m_shotDelay -= Time.deltaTime;
+                }
+                else 
+                {
+                    m_shotDelay += m_timeDelayBetweenShots;
+                    m_animator.Shoot();
+                }
+                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
+                m_myLegs.LookAtTarget(60f);
+                m_targetTransform.transform.position = m_targetWaypoint;
                 SensorCheck();
                 HearingCheck();
                 break;
             case AI_State.Dead:
+                break;
+            case AI_State.Meeting:
+                if(m_myLegs.IsResting())
+                {
+                    if (m_meetingTime < 5.0f)
+                    {
+                        m_meetingTime += Time.deltaTime;
+                        if (m_meetingTime < 4.0f && UnityEngine.Random.Range(0, 1000) < 200)
+                        {
+                            m_animator.Talk();
+                        }
+                    }
+                    else
+                    {
+                        if (m_currentMeetingPartner.HasValue)
+                        {
+                            foreach (var item in m_myAllies)
+                            {
+                                if(item.Value.brain == m_currentMeetingPartner.Value.brain)
+                                {
+                                    m_myAllies[item.Key] = new AlliedInfo(m_currentMeetingPartner.Value);
+                                    break;
+                                }
+                            }
+                            m_currentMeetingPartner = null;
+                        }
+                        TransitionBehaviorTo(AI_State.Idle);
+                        m_idleTimer = 0.5f;
+                        m_meetingTime = 0.0f;
+                    }
+                }
                 break;
             default:
                 break;
@@ -269,7 +350,16 @@ public class AI_Brain : MonoBehaviour
                 float distMod = 1.0f - Vector3.Distance(item.transform.position, transform.position) / m_mySight.m_sightRange;
                 distMod = Mathf.Clamp(distMod, 0.0f, 1.0f);
 
-                float visMod = item.GetComponent<PlayerMovement>().m_visibility;
+                float visMod;
+                if (item.GetComponent<PlayerMovement>())
+                {
+                    visMod = item.GetComponent<PlayerMovement>().m_visibility;
+                }
+                else
+                {
+                    visMod = 1f;
+                }
+                
 
                 if (m_attention < 1.0f)
                 {
@@ -299,6 +389,53 @@ public class AI_Brain : MonoBehaviour
                 }
                 return;
             }
+            if(item.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+            {
+                AlliedInfo info;
+                if(m_myAllies.TryGetValue(item, out info))
+                {
+                    switch (info.brain.m_myState)
+                    {
+                        case AI_State.Idle:
+                        case AI_State.ReturnToPatrol:
+                        case AI_State.Patrol:
+                            //Initiate talk
+                            if(info.GetTimeSinceLastMeeting() > 30.0f && m_myState != AI_State.Meeting)
+                            {
+                                PingForMeeting(info);
+                            }
+                            break;
+                        case AI_State.Alert:
+                        case AI_State.Meeting:
+                        case AI_State.Investigating:
+                            //Ignore
+                            break;
+                        case AI_State.Hunting:
+                        case AI_State.Engaging:
+                            //Hunt with them
+                            TransitionBehaviorTo(info.brain.m_myState);
+                            m_agression = 1.0f;
+                            m_attention = 1.0f;
+                            m_currentInterest = info.brain.m_currentInterest;
+                            break;
+                        case AI_State.Dead:
+                            if(!info.foundDead)
+                            {
+                                //Alert any nearby
+                                TransitionBehaviorTo(AI_State.Hunting);
+                                m_agression = 1.0f;
+                                m_attention = 1.0f;
+                                NoiseManager.instance.CreateNoise(transform.position, 25.0f, gameObject.layer, 2.0f, 0.0f);
+                                info = new AlliedInfo(info.brain);
+                                info.foundDead = true;
+                                m_myAllies[item] = info;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
 
         if(m_mySight.m_interests.Count > 0)
@@ -327,6 +464,66 @@ public class AI_Brain : MonoBehaviour
         {
             TransitionBehaviorTo(AI_State.Investigating);
         }
+    }
+
+    private void PingForMeeting(AlliedInfo other)
+    {
+        //Find meeting location
+        Vector3 midPoint = (other.brain.transform.position + transform.position) / 2;
+        float maxMeetingDist = 20f; //Too far, why bother?
+        if(m_myLegs.GetPathDistTo(midPoint) <= maxMeetingDist && other.brain.PongForMeeting(midPoint, this))
+        {
+            //Start meeting
+            m_meetingLoc = midPoint;
+            TransitionBehaviorTo(AI_State.Meeting);
+            CompareInformation(this, other.brain);
+            m_currentMeetingPartner = other;
+        }
+        else
+        {
+            other.timeOfMeeting = DateTime.Now;
+        }
+    }
+
+    public void CompareInformation(AI_Brain pinger, AI_Brain ponger)
+    {
+        foreach (var myData in pinger.m_myAllies)
+        {
+            foreach (var data in ponger.m_myAllies)
+            {
+                if(myData.Value.brain == data.Value.brain)
+                {
+                    if(myData.Value.foundDead)
+                    {
+                        ponger.m_myAllies[data.Key] = new AlliedInfo(myData.Value);
+                    }
+                    if (data.Value.foundDead)
+                    {
+                        pinger.m_myAllies[myData.Key] = new AlliedInfo(data.Value);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    public bool PongForMeeting(Vector3 midPoint, AI_Brain pinger)
+    {
+        float maxMeetingDist = 20f; //Too far, why bother?
+        if (m_myLegs.GetPathDistTo(midPoint) <= maxMeetingDist)
+        {
+            foreach (var item in m_myAllies)
+            {
+                if(item.Value.brain == pinger)
+                {
+                    m_currentMeetingPartner = item.Value;
+                    m_meetingLoc = midPoint;
+                    TransitionBehaviorTo(AI_State.Meeting);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void HearingCheck()
@@ -375,6 +572,8 @@ public class AI_Brain : MonoBehaviour
         if (m_myState == state)
             return;
 
+        m_animator.Disengage();
+
         switch (state)
         {
             case AI_State.Idle:
@@ -404,10 +603,12 @@ public class AI_Brain : MonoBehaviour
                 m_idleTimer += 3.5f;
                 break;
             case AI_State.Hunting:
-                m_myLegs.m_runMode = true;
+                m_myLegs.m_runMode = true; 
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
+                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                m_animator.Engage();
                 break;
             case AI_State.Dead:
                 m_myLegs.m_runMode = false;
@@ -415,6 +616,10 @@ public class AI_Brain : MonoBehaviour
                 m_attentionBar.transform.parent.gameObject.SetActive(false);
                 m_myLegs.Halt();
                 m_animator.SetDead();
+                break;
+            case AI_State.Meeting:
+                m_myLegs.SetTargetDestinaton(m_meetingLoc, 2.0f, 3.0f);
+                m_myLegs.LookAtTarget();
                 break;
             default:
                 break;
@@ -445,32 +650,28 @@ public class AI_Brain : MonoBehaviour
         }
     }
 
-    public IEnumerator NeckTowardsAngle(Vector3 euler, IEnumerator routineAfterwards = null)
+    public void SpawnProjectile(GameObject prefab)
     {
-        while(m_neckTransform.localRotation != Quaternion.Euler(euler.x, euler.y, euler.z))
-        {
-            m_neckTransform.localRotation = Quaternion.RotateTowards(m_neckTransform.localRotation, Quaternion.Euler(euler.x, euler.y, euler.z), m_visionSpeed);
-            yield return new WaitForEndOfFrame();
-        }
+        Vector3 direction = (m_targetTransform.transform.position - m_shotOrigin.transform.position).normalized;
 
-        if (routineAfterwards != null)
-        {
-            StartCoroutine(routineAfterwards);
-        }
-        else
-        {
-            m_neckRoutine = null;
-        }
-        
-        yield return null;
+        Rigidbody proj = Instantiate(prefab, m_shotOrigin.transform.position, Quaternion.LookRotation(direction, Vector3.up)).GetComponent<Rigidbody>();
+        proj.AddForce(direction * 0.3f, ForceMode.Impulse);
+        m_shotDelay += 0.3f;
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
+        if(m_myState != AI_State.Meeting)
+        {
+            Gizmos.DrawSphere(m_targetWaypoint, 0.4f);
+        }
+        else
+        {
+            Gizmos.DrawSphere(m_meetingLoc, 0.4f);
+        }
         Gizmos.DrawLine(transform.position, transform.position + transform.forward);
         Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, m_immuneRange, 0) * transform.forward) * m_maxKillDist);
         Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, -m_immuneRange, 0) * transform.forward) * m_maxKillDist);
-        Gizmos.DrawSphere(m_targetWaypoint, 0.5f);
     }
 }

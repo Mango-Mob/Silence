@@ -1,5 +1,10 @@
 fileFormatVersion: 2
-guid: 73d4759480452ba47b57b6e490ac069b
+<<<<<<< HEAD:Prototype3/Assets/Scenes/MapSelect.unity.meta
+guid: 889487f1a01554c42bfaf8150e688c70
+=======
+guid: 1f3d6331880bb264a98fab6b2b8b26fc
+folderAsset: yes
+>>>>>>> origin/Petre:Prototype3/Assets/Models/Main character.meta
 DefaultImporter:
   externalObjects: {}
   userData: 
