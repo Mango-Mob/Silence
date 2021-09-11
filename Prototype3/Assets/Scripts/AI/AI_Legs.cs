@@ -12,7 +12,7 @@ public class AI_Legs : MonoBehaviour
     public bool m_runMode = false;
 
     private NavMeshAgent m_agent;
-
+    private bool m_islookAtVelocity;
     private float m_targetDelay = 1.0f;
     private Quaternion m_targetOrientation;
     [SerializeField] private Vector3 m_targetLocation;
@@ -26,6 +26,11 @@ public class AI_Legs : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(m_islookAtVelocity)
+        {
+            m_targetOrientation = Quaternion.LookRotation(m_agent.velocity.normalized, Vector3.up);
+        }
+
         transform.rotation = Quaternion.RotateTowards(transform.rotation, m_targetOrientation, m_maxDegrees);
         if(m_targetDelay > 0)
             m_targetDelay -= Time.deltaTime;
@@ -94,6 +99,7 @@ public class AI_Legs : MonoBehaviour
 
     public void LookAtTarget(float ignoreAngleChange = 0.0f)
     {
+        m_islookAtVelocity = false;
         Quaternion lookTo = Quaternion.LookRotation((m_targetLocation - transform.position).normalized);
         float angle = Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo));
             
@@ -107,6 +113,7 @@ public class AI_Legs : MonoBehaviour
 
     public void LookAtDirection(Vector3 direction)
     {
+        m_islookAtVelocity = false;
         m_targetOrientation = Quaternion.LookRotation(direction.normalized, Vector3.up);
     }
 
@@ -168,5 +175,10 @@ public class AI_Legs : MonoBehaviour
             return distance;
         }
         return -1;
+    }
+
+    public void LookAtVelocity()
+    {
+        m_islookAtVelocity = true;
     }
 }

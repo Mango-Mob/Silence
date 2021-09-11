@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 51112789424050113}
   - component: {fileID: 2830291446815261685}
   - component: {fileID: 269932769504804892}
+  - component: {fileID: 6088306831053062507}
   m_Layer: 10
   m_Name: BatteryCell
   m_TagString: Untagged
@@ -125,3 +126,19 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -8461090806126010005, guid: 5ca32b71a4df7b84b822bf07b90b056d, type: 3}
+--- !u!208 &6088306831053062507
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5404292986191378762}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 1.2750001, y: 1.233, z: 1.9350001}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 1.233, z: 0}
+  m_TimeToStationary: 0.5

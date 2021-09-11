@@ -64,6 +64,7 @@ public class AI_Brain : MonoBehaviour
     public float m_timeDelayBetweenShots;
     public Transform m_shotOrigin;
     private float m_shotDelay = 0f;
+    private int m_routeWaypointID = -1;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
@@ -584,16 +585,22 @@ public class AI_Brain : MonoBehaviour
                 m_myLegs.Halt();
                 break;
             case AI_State.ReturnToPatrol:
-                m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
+                m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position, out m_routeWaypointID);
                 m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.Patrol:
-                m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
+                if (m_routeWaypointID == -1)
+                    m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position, out m_routeWaypointID);
+                else
+                    m_targetWaypoint = m_myRoute.GetWaypoint(m_routeWaypointID);
+
+                m_routeWaypointID = m_myRoute.IncrementIndex(m_routeWaypointID);
+
                 m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
-                m_myLegs.LookAtTarget();
+                m_myLegs.LookAtVelocity();
                 break;
             case AI_State.Alert:
                 m_myLegs.m_runMode = true;

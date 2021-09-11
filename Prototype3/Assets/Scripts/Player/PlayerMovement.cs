@@ -280,6 +280,7 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         //LevelLoader.instance.LoadNewLevel(m_nextScreen);
+        gameObject.layer = 2;
         m_dead = true;
         m_isCrouching = false;
         m_hookMode = HookMode.retracting;
