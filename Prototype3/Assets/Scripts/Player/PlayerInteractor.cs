@@ -35,7 +35,7 @@ public class PlayerInteractor : MonoBehaviour
             }
         }
 
-        if (InputManager.instance.IsKeyDown(KeyType.E))
+        if (InputManager.instance.IsKeyDown(KeyType.E) && !playerMovement.m_dead)
         {
             if (currentInteractable != null && currentInteractable.GetComponent<Interactable>())
             {
@@ -44,7 +44,7 @@ public class PlayerInteractor : MonoBehaviour
             }
         }
 
-        if (InputManager.instance.GetMouseDown(MouseButton.LEFT) && m_hasKnife)
+        if (InputManager.instance.GetMouseDown(MouseButton.LEFT) && m_hasKnife && !playerMovement.m_dead)
         {
             if (currentInteractable != null && currentInteractable.GetComponent<AI_Brain>())
             {

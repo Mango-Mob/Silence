@@ -25,6 +25,10 @@ public class PlayerMovement : MonoBehaviour
     public PlayerCamera playerCamera { get; private set; }
     public Animator m_animator { get; private set; }
 
+    [Header("Player Death")]
+    public string m_nextScreen = "MainMenu";
+    public bool m_dead { get; private set; } = false;
+
     [Header("Movement Attributes")]
     public float m_speed = 8.0f;
     public float m_crouchSpeed = 4.0f;
@@ -78,6 +82,7 @@ public class PlayerMovement : MonoBehaviour
     private WallDir m_currentWall = WallDir.none;
 
     private float m_tiltVelocity = 0.0f;
+    private float m_xTiltVelocity = 0.0f;
     private bool m_wallRunRefreshed = true;
 
     [Header("Invisibility")]
@@ -117,6 +122,14 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (InputManager.instance.IsKeyDown(KeyType.K))
+            KillPlayer();
+        if (m_dead)
+        {
+            playerCamera.m_xRotation = Mathf.SmoothDampAngle(playerCamera.m_xRotation, -85.0f, ref m_xTiltVelocity, 0.2f);
+            playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, 85.0f, ref m_tiltVelocity, 0.3f);
+        }
+
         bool leftGround = false;
         if (!charController.isGrounded && m_grounded)
         {
@@ -126,7 +139,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Player movement
         Vector2 movementInput = Vector2.zero;
-        if (!m_isWallRunning)
+        if (!m_isWallRunning && !m_dead)
             movementInput = GetMovementInput();
         Vector3 moveDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
@@ -199,7 +212,6 @@ public class PlayerMovement : MonoBehaviour
             //m_velocity = Vector3.Lerp(m_velocity, m_calculatedVelocity, 0.1f);
         }
 
-
         // Grounded checks
         if (m_grounded && m_velocity.y < 0.0f && m_hookMode != HookMode.pulling)
         {
@@ -222,13 +234,13 @@ public class PlayerMovement : MonoBehaviour
             m_velocity.y = 0;
 
         // Jumping
-        if (charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
+        if (!m_dead && charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
         {
             m_velocity.y = m_jumpSpeed;
         }
 
         // Crouching
-        if (InputManager.instance.IsKeyDown(KeyType.L_CTRL))
+        if (InputManager.instance.IsKeyDown(KeyType.L_CTRL) && !m_dead)
         {
             m_isCrouching = !m_isCrouching;
         }
@@ -255,6 +267,19 @@ public class PlayerMovement : MonoBehaviour
         StealthDetection();
 
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
+    }
+    public void KillPlayer()
+    {
+        if (m_dead)
+            return;
+
+        //LevelLoader.instance.LoadNewLevel(m_nextScreen);
+        m_dead = true;
+        m_isCrouching = false;
+        m_hookMode = HookMode.retracting;
+        m_isInvisible = false;
+        m_isWallRunning = false;
+        m_currentWall = WallDir.none;
     }
     private void StealthDetection()
     {
@@ -294,7 +319,7 @@ public class PlayerMovement : MonoBehaviour
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
         m_grappleSource.SetPosition(1, m_grappleEnd.position);
 
-        if (InputManager.instance.GetMouseButtonDown(MouseButton.RIGHT))
+        if (InputManager.instance.GetMouseButtonDown(MouseButton.RIGHT) && !m_dead)
         {
             RaycastHit rayHit;
 
@@ -384,7 +409,7 @@ public class PlayerMovement : MonoBehaviour
         if (m_grounded)
             m_wallRunRefreshed = true;
 
-        if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed) || m_isWallRunning) && !m_grounded)
+        if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed && !m_dead) || m_isWallRunning) && !m_grounded)
         {
             Collider closestCollider = null;
             Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
@@ -484,7 +509,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                if (InputManager.instance.IsKeyDown(KeyType.Q))
+                if (InputManager.instance.IsKeyDown(KeyType.Q) && !m_dead)
                 { 
                     m_animator.SetTrigger("Snap");
                     m_invisibilityTimer = m_invisibilityDuration;
