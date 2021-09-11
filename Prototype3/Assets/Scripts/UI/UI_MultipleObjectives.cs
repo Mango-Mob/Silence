@@ -17,10 +17,10 @@ public class UI_MultipleObjectives : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        LootItem[] lootArray = FindObjectsOfType<LootItem>();
+        LootManager[] lootArray = FindObjectsOfType<LootManager>();
         foreach (var loot in lootArray)
         {
-            m_maxMoney += loot.m_lootValue;
+            m_maxMoney += loot.m_currentValue;
         }
         ObjectiveText = GetComponent<TMP_Text>();
         TaskUpdate();
