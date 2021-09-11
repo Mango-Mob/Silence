@@ -667,7 +667,7 @@ MonoBehaviour:
   m_crouchVisibility: 0.5
   m_headCollisionMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1025
   crouchVolume: {fileID: 4058921834427643254}
   m_headAbility: 0
   m_armAbility: 0
@@ -743,6 +743,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 34b60605dcc2a9343b9040a6d5026697, type: 3}
   - {fileID: 8300000, guid: 75477bd5eb6c71c478a0307363dda4b6, type: 3}
   - {fileID: 8300000, guid: e3e5eb1190663654badd0fcf45d0434a, type: 3}
+  - {fileID: 8300000, guid: 35bd623967361ec45aa7242e7ae84706, type: 3}
   audioPlayersCount: 5
   channel: 1
 --- !u!1 &1359088570751359070

@@ -40,7 +40,6 @@ public class PlayerInteractor : MonoBehaviour
             if (currentInteractable != null && currentInteractable.GetComponent<Interactable>())
             {
                 playerMovement.m_animator.SetTrigger("Grab");
-                playerMovement.audioAgent.Play("Pickup");
                 NoiseManager.instance.CreateNoise(transform.position, 4.0f, playerMovement.m_noiseMask, Time.deltaTime);
                 currentInteractable.GetComponent<Interactable>().Interact();
             }
@@ -50,6 +49,18 @@ public class PlayerInteractor : MonoBehaviour
         {
             playerMovement.m_animator.SetTrigger("Stab");
             playerMovement.audioAgent.Play("Stab");
+        }
+    }
+
+    public void PlayPickupSound(bool isLoot)
+    {
+        if(isLoot)
+        {
+            playerMovement.audioAgent.Play("Loot");
+        }
+        else
+        {
+            playerMovement.audioAgent.Play("Pickup");
         }
     }
 

@@ -490,6 +490,8 @@ MonoBehaviour:
   m_canvasGroup: {fileID: 959465342645526747}
   m_fadeSpeed: 0.2
   m_alphaMin: 0.3
+  m_LootVFX: {fileID: 1926549640486145455, guid: 20d39eef34eb0a74b946c122edb4ba44,
+    type: 3}
 --- !u!1 &849639768768090553
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,7 +13,8 @@ public class UI_MultipleObjectives : MonoBehaviour
     public float m_fadeSpeed = 0.2f;
     public float m_alphaMin = 0.3f;
 
-
+    public GameObject m_LootVFX = null;
+    private float m_currentLoot = 0.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +38,12 @@ public class UI_MultipleObjectives : MonoBehaviour
         ObjectiveText.text = "";
         string checkValue = (GameManager.instance.lootValue >= m_maxMoney) ? "•" : "○";
         ObjectiveText.text += $"{checkValue} Steal Loot: $ {GameManager.instance.lootValue} / $ {m_maxMoney}";
+
+        if(m_currentLoot < GameManager.instance.lootValue)
+        {
+            Instantiate(m_LootVFX, transform.parent);
+            m_currentLoot = GameManager.instance.lootValue;
+        }
 
         if (GameManager.instance.lootValue >= m_maxMoney)
         {
