@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -137,7 +137,7 @@ PrefabInstance:
     - target: {fileID: 7200034807424635041, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.888
       objectReference: {fileID: 0}
     - target: {fileID: 7200034807424635041, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
@@ -162,7 +162,7 @@ PrefabInstance:
     - target: {fileID: 7200034808011751299, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7200034808026746150, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
@@ -202,7 +202,7 @@ PrefabInstance:
     - target: {fileID: 7200034808735054549, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.888
       objectReference: {fileID: 0}
     - target: {fileID: 7200034808735054549, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
@@ -212,7 +212,7 @@ PrefabInstance:
     - target: {fileID: 7200034808735054549, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.888
       objectReference: {fileID: 0}
     - target: {fileID: 7200034809043780020, guid: fb30c9d1de9e1cd43bc13f4258ed38bf,
         type: 3}
