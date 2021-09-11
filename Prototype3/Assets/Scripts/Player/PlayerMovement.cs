@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public Volume processVolume;
     public PlayerCamera playerCamera { get; private set; }
+    public Animator m_animator { get; private set; }
 
     [Header("Movement Attributes")]
     public float m_speed = 8.0f;
@@ -31,6 +32,9 @@ public class PlayerMovement : MonoBehaviour
     public float m_playerGravity = 9.81f;
     public float m_damping = 0.5f;
     public float m_airAcceleration = 1.0f;
+
+    public float m_crouchVisibility = 0.5f;
+    public float m_visibility { get; private set; } // Much requested visibility variable 
 
     private Vector3 m_lastPosition;
     private Vector3 m_calculatedVelocity = Vector3.zero;
@@ -73,9 +77,16 @@ public class PlayerMovement : MonoBehaviour
 
     private WallDir m_currentWall = WallDir.none;
 
-
     private float m_tiltVelocity = 0.0f;
     private bool m_wallRunRefreshed = true;
+
+    [Header("Invisibility")]
+    public float m_invisibilityDuration = 5.0f;
+    private float m_invisibilityTimer = 0.0f;
+    public float m_invisibilityCD = 45.0f;
+    private float m_invisibilityCDTimer = 0.0f;
+
+    private bool m_isInvisible = false;
 
     enum HookMode
     {
@@ -96,6 +107,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        m_animator = GetComponentInChildren<Animator>();
         m_lastPosition = transform.position;
         charController = GetComponent<CharacterController>();
         playerCamera = GetComponent<PlayerCamera>();
@@ -119,6 +131,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 moveDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
         float currentSpeed = (m_crouchLerp < 0.5f) ? m_crouchSpeed : m_speed;
+
+        m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
+        m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
+
 
         if (leftGround)
         {
@@ -222,9 +238,12 @@ public class PlayerMovement : MonoBehaviour
         else if (!Physics.CheckSphere(playerCamera.m_camera.transform.position, charController.radius * 1.1f, m_headCollisionMask))
             m_crouchLerp += Time.deltaTime * 10.0f;
 
+        m_animator.SetBool("IsSneaking", m_isCrouching);
+
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
-        processVolume.weight = 1.0f - m_crouchLerp;
+        if (processVolume != null)
+            processVolume.weight = 1.0f - m_crouchLerp;
 
         playerCamera.m_camera.transform.localPosition = new Vector3(0, Mathf.Lerp(0.0f, m_cameraOffset, m_crouchLerp), 0);
 
@@ -233,16 +252,24 @@ public class PlayerMovement : MonoBehaviour
         charController.height = newHeight;
 
         Abilities();
+        StealthDetection();
 
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
+    }
+    private void StealthDetection()
+    {
+        m_visibility = (m_crouchVisibility + m_crouchLerp * (1.0f - m_crouchVisibility)) * (m_isInvisible ? 0.0f : 1.0f);
     }
     private void Abilities()
     {
         switch (m_headAbility)
         {
             case HeadAbility.invisibility:
+                Invisibility();
                 break;
             default:
+                m_isInvisible = false;
+                m_invisibilityTimer = 0.0f;
                 break;
         }
         switch (m_armAbility)
@@ -272,7 +299,10 @@ public class PlayerMovement : MonoBehaviour
             RaycastHit rayHit;
 
             if (m_hookMode != HookMode.idle && m_hookMode != HookMode.retracting)
+            {
                 m_hookMode = HookMode.retracting;
+                m_animator.SetTrigger("ZipPullStart");
+            }
 
             if (m_hookMode == HookMode.idle)
             {
@@ -288,6 +318,7 @@ public class PlayerMovement : MonoBehaviour
                     m_grappleHitPos = playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward * m_grappleRange;
                     m_grappleSource.enabled = true;
                 }
+                m_animator.SetTrigger("ZipFire");
             }
         }
 
@@ -301,6 +332,7 @@ public class PlayerMovement : MonoBehaviour
                     m_hookMode = HookMode.pulling;
                     m_isWallRunning = false;
                     m_velocity = Vector3.zero;
+                    m_animator.SetTrigger("ZipPullStart");
                 }
                 break;
             case HookMode.firing_missed:
@@ -308,6 +340,7 @@ public class PlayerMovement : MonoBehaviour
                 if (m_grappleShotLerp >= 1.0f)
                 {
                     m_hookMode = HookMode.retracting;
+                    m_animator.SetTrigger("ZipPullStart");
                 }
                 break;
             case HookMode.pulling:
@@ -428,6 +461,37 @@ public class PlayerMovement : MonoBehaviour
 
         float targetLerp = (Mathf.Sin(Vector3.SignedAngle(transform.forward, direction, Vector3.up) * Mathf.Deg2Rad) * 0.5f) + 0.5f;
         playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, Mathf.LerpAngle(-30.0f, 30.0f, targetLerp), ref m_tiltVelocity, 0.1f);
+    }
+    private void Invisibility()
+    {
+        if (m_isInvisible)
+        {
+            if (m_invisibilityTimer > 0.0f)
+            {
+                m_invisibilityTimer -= Time.deltaTime;
+            }
+            else
+            {
+                m_isInvisible = false;
+                m_invisibilityCDTimer = m_invisibilityCD;
+            }
+        }
+        else
+        {
+            if (m_invisibilityCDTimer > 0.0f)
+            {
+                m_invisibilityCDTimer -= Time.deltaTime;
+            }
+            else
+            {
+                if (InputManager.instance.IsKeyDown(KeyType.Q))
+                { 
+                    m_animator.SetTrigger("Snap");
+                    m_invisibilityTimer = m_invisibilityDuration;
+                    m_isInvisible = true;
+                }
+            }
+        }
     }
     private Vector2 GetMovementInput()
     {

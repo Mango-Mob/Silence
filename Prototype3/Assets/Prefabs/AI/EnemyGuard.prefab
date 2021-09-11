@@ -319,6 +319,36 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 257
   m_memoryDuration: 5
+--- !u!1 &1779955248
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1779955249}
+  m_Layer: 9
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1779955249
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779955248}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.03, y: 0, z: -1.83}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8377122872067108713}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1972663040
 GameObject:
   m_ObjectHideFlags: 0
@@ -779,6 +809,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1642428403762803172}
+  - component: {fileID: 7157590577263703033}
+  - component: {fileID: 7157590577263703032}
   m_Layer: 0
   m_Name: Model
   m_TagString: Untagged
@@ -809,6 +841,40 @@ Transform:
   m_Father: {fileID: 8377122872067108713}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &7157590577263703033
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125913716615244638}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 11e3858c4ca424740b188c598c00c628, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &7157590577263703032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125913716615244638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2014afc0b4c1e2246bd0f8f6a114a71a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HorizVelocityName: HorizontalVelocity
+  VertVelocityName: VerticalVelocity
+  VelocityNetName: VelocityNet
 --- !u!1 &2181055103666653189
 GameObject:
   m_ObjectHideFlags: 0
@@ -2153,6 +2219,7 @@ GameObject:
   - component: {fileID: 4519386571891312594}
   - component: {fileID: 1463350520006081323}
   - component: {fileID: 425663356}
+  - component: {fileID: 1565689685}
   m_Layer: 9
   m_Name: EnemyGuard
   m_TagString: Untagged
@@ -2173,6 +2240,7 @@ Transform:
   m_Children:
   - {fileID: 1642428403762803172}
   - {fileID: 1972663041}
+  - {fileID: 1779955249}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2193,6 +2261,9 @@ MonoBehaviour:
   m_attentionDecay: 0.25
   m_aggressionBuild: 5
   m_aggressionDecay: 0.5
+  m_immuneRange: 160
+  m_maxKillDist: 2.5
+  m_testKillLoc: {fileID: 1779955249}
   m_myRoute: {fileID: 0}
   m_visionSpeed: 0.25
   m_visionMinEuler: {x: -20, y: 0, z: 0}
@@ -2213,6 +2284,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxDegrees: 5
+  m_walkSpeed: 2.5
+  m_runSpeed: 4.5
+  m_runMode: 0
   m_targetLocation: {x: 0, y: 0, z: 0}
 --- !u!195 &1463350520006081323
 NavMeshAgent:
@@ -2249,7 +2323,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxDegrees: 25
+  m_walkSpeed: 2.5
+  m_runSpeed: 4.5
+  m_runMode: 0
   m_targetLocation: {x: 0, y: 0, z: 0}
+--- !u!136 &1565689685
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8377122872067108714}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.25, z: 0}
 --- !u!1 &8478897228566672269
 GameObject:
   m_ObjectHideFlags: 0
