@@ -7,9 +7,12 @@ using TMPro;
 public class UI_MultipleObjectives : MonoBehaviour
 {
     private TMP_Text ObjectiveText;
-    RectTransform rectTransform;
     private float m_maxMoney = 0.0f;
     public bool m_escaped = false;
+    public CanvasGroup m_canvasGroup;
+    public float m_fadeSpeed = 0.2f;
+    public float m_alphaMin = 0.3f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -20,8 +23,8 @@ public class UI_MultipleObjectives : MonoBehaviour
             m_maxMoney += loot.m_lootValue;
         }
         ObjectiveText = GetComponent<TMP_Text>();
-        rectTransform = ObjectiveText.GetComponent<RectTransform>();
         TaskUpdate();
+
     }
 
     // Update is called once per frame
@@ -40,5 +43,14 @@ public class UI_MultipleObjectives : MonoBehaviour
             checkValue = (m_escaped) ? "•" : "○";
             ObjectiveText.text += $"\n{checkValue} Escape to the exit";
         }
+
+        float newAlpha = m_canvasGroup.alpha - Time.deltaTime * m_fadeSpeed;
+        newAlpha = Mathf.Clamp(newAlpha, m_alphaMin, 1.0f);
+        m_canvasGroup.alpha = newAlpha;
+    }
+
+    public void Appear()
+    {
+        m_canvasGroup.alpha = 1.0f;
     }
 }

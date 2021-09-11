@@ -27,6 +27,11 @@ public class AI_Animator : MonoBehaviour
         
     }
 
+    public void SetDead()
+    {
+        m_myAnimator.SetTrigger("IsDead");
+    }
+
     public void SetVelocity(Vector2 velocity)
     {
         float horiz = Mathf.Clamp(velocity.x, -1f, 1f);

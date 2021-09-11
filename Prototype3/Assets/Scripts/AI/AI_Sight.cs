@@ -49,6 +49,7 @@ public class AI_Sight : MonoBehaviour
     public int m_edgeResolveIteration;
     public float m_edgeDistThreshold;
     private Mesh m_viewMesh;
+    private bool m_activeSight = true;
 
     public List<Collider> m_collidersWithinSight;
     public List<AI_Interest> m_interests = new List<AI_Interest>();
@@ -71,6 +72,7 @@ public class AI_Sight : MonoBehaviour
         UpdateDetection();
         UpdateInterest();
     }
+        
 
     private void LateUpdate()
     {
@@ -285,6 +287,10 @@ public class AI_Sight : MonoBehaviour
         }
     }
 
+    public void OnDisable()
+    {
+        m_viewMesh.Clear();
+    }
     public void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

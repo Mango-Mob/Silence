@@ -242,7 +242,8 @@ public class PlayerMovement : MonoBehaviour
 
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
-        processVolume.weight = 1.0f - m_crouchLerp;
+        if (processVolume != null)
+            processVolume.weight = 1.0f - m_crouchLerp;
 
         playerCamera.m_camera.transform.localPosition = new Vector3(0, Mathf.Lerp(0.0f, m_cameraOffset, m_crouchLerp), 0);
 
@@ -268,6 +269,7 @@ public class PlayerMovement : MonoBehaviour
                 break;
             default:
                 m_isInvisible = false;
+                m_invisibilityTimer = 0.0f;
                 break;
         }
         switch (m_armAbility)
