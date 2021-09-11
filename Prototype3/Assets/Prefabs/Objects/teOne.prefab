@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6641321327429366465}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: teOne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,8 @@ GameObject:
   - component: {fileID: 6761868417119591397}
   - component: {fileID: 5965022736698149672}
   - component: {fileID: 5202689273413613965}
-  m_Layer: 0
+  - component: {fileID: 2699447590256594690}
+  m_Layer: 10
   m_Name: pCube46
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110,3 +111,16 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!65 &2699447590256594690
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7359644188671866568}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.5, z: 0}

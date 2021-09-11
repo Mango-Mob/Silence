@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 127999341272960442}
   - component: {fileID: 6772335206478818976}
   - component: {fileID: 6521922199915875176}
+  - component: {fileID: 129529352318599398}
   m_Layer: 0
   m_Name: GlassTank_TankShellGlass
   m_TagString: Untagged
@@ -79,6 +80,20 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &129529352318599398
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258037396972181122}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 6092982728779311665, guid: 2b35b32380340cf4290eb722c45d398b, type: 3}
 --- !u!1 &3437274266123473251
 GameObject:
   m_ObjectHideFlags: 0
@@ -90,6 +105,7 @@ GameObject:
   - component: {fileID: 8171523712075664250}
   - component: {fileID: 9090102730129004894}
   - component: {fileID: 3786190075561370919}
+  - component: {fileID: 8033176854546634817}
   m_Layer: 0
   m_Name: TankBase1_GlassTank
   m_TagString: Untagged
@@ -158,6 +174,20 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &8033176854546634817
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3437274266123473251}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2791682781653858049, guid: 2b35b32380340cf4290eb722c45d398b, type: 3}
 --- !u!1 &8045076601361293139
 GameObject:
   m_ObjectHideFlags: 0

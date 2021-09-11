@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 7201555552805456583}
   - component: {fileID: 4410601286749524394}
   - component: {fileID: 6718520156947910892}
-  m_Layer: 0
+  - component: {fileID: 8656301235804197451}
+  m_Layer: 10
   m_Name: Prop1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,6 +80,20 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &8656301235804197451
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595582908160178030}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -4019186321556187664, guid: cc0975a84339f8d42b14c0c4e8490710, type: 3}
 --- !u!1 &5100179724751085518
 GameObject:
   m_ObjectHideFlags: 0
@@ -88,7 +103,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5588029101857326452}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: PowerUnit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
