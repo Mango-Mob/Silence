@@ -63,6 +63,10 @@ public class AI_Brain : MonoBehaviour
     public GameObject m_targetTransform;
     public float m_timeDelayBetweenShots;
     public Transform m_shotOrigin;
+
+    public Collider m_aliveCollider;
+    public Collider m_deathCollider;
+
     private float m_shotDelay = 0f;
     private int m_routeWaypointID = -1;
 
@@ -118,6 +122,8 @@ public class AI_Brain : MonoBehaviour
     private void Awake()
     {
         Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Enemy"), LayerMask.NameToLayer("EnemyProjectile"));
+        m_aliveCollider.enabled = true;
+        m_deathCollider.enabled = false;
     }
     // Start is called before the first frame update
     void Start()
@@ -304,6 +310,8 @@ public class AI_Brain : MonoBehaviour
                 HearingCheck();
                 break;
             case AI_State.Dead:
+                m_aliveCollider.enabled = false;
+                m_deathCollider.enabled = true;
                 break;
             case AI_State.Meeting:
                 if(m_myLegs.IsResting())

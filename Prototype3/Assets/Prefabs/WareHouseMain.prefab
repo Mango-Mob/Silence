@@ -7405,7 +7405,7 @@ GameObject:
   - component: {fileID: 725685493013192235}
   - component: {fileID: 1174162397925313421}
   - component: {fileID: 5526145245177500189}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: WarehouseLayout_Walls_Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
