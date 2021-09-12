@@ -622,6 +622,7 @@ Transform:
   - {fileID: 720680546}
   - {fileID: 996317606}
   - {fileID: 3543671098784761897}
+  - {fileID: 367201962557565779}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -658,7 +659,7 @@ MonoBehaviour:
   m_noiseMask:
     serializedVersion: 2
     m_Bits: 256
-  m_nextScreen: MainMenu
+  m_nextScreen: MapSelect
   m_speed: 5
   m_crouchSpeed: 3
   m_jumpSpeed: 7.5
@@ -2979,6 +2980,36 @@ Transform:
   m_Father: {fileID: 8051317814335329262}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 3.7869673, y: -0.48979378, z: 65.317444}
+--- !u!1 &9116171413816471684
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 367201962557565779}
+  m_Layer: 0
+  m_Name: MusicBot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &367201962557565779
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9116171413816471684}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1263316920918627361}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9151417724305693949
 GameObject:
   m_ObjectHideFlags: 0
