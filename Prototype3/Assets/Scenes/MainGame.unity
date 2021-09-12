@@ -133,6 +133,16 @@ PrefabInstance:
       propertyPath: m_myRoute
       value: 
       objectReference: {fileID: 1478739087}
+    - target: {fileID: 3022805217224183233, guid: 904339685d432444da54e5eaab9f109a,
+        type: 3}
+      propertyPath: m_attentionDecay
+      value: 0.0625
+      objectReference: {fileID: 0}
+    - target: {fileID: 3022805217224183233, guid: 904339685d432444da54e5eaab9f109a,
+        type: 3}
+      propertyPath: m_aggressionDecay
+      value: 0.125
+      objectReference: {fileID: 0}
     - target: {fileID: 8377122872067108713, guid: 904339685d432444da54e5eaab9f109a,
         type: 3}
       propertyPath: m_RootOrder
@@ -9073,6 +9083,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_points:
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
   - {fileID: 2370760939446507653}
   - {fileID: 2370760938310923598}
   - {fileID: 1651411756}

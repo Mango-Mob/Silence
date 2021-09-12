@@ -313,11 +313,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5abcd1a103f0e674286658959c5f7446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_hearingRange: 8
+  m_hearingRange: 6
   m_recieverLayer:
     serializedVersion: 2
     m_Bits: 769
-  m_memoryDuration: 5
+  m_memoryDuration: 3
 --- !u!1 &1776482530
 GameObject:
   m_ObjectHideFlags: 0
