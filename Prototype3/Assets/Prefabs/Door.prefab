@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2926882310182611421}
   - component: {fileID: 2582127572565324644}
   - component: {fileID: 2582127572565324645}
+  - component: {fileID: 180538162825940133}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -69,6 +70,25 @@ MonoBehaviour:
   m_openers:
     serializedVersion: 2
     m_Bits: 768
+--- !u!114 &180538162825940133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2582127572565324647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20c936e73eec43a43969c7948e51a2a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localVolume: 1
+  isMuted: 0
+  audioClips:
+  - {fileID: 8300000, guid: 1f764d43445fb3245b1dcf6c46658093, type: 3}
+  - {fileID: 8300000, guid: f11f8b1beb1bee14799c6baa46e27ac9, type: 3}
+  audioPlayersCount: 5
+  channel: 1
 --- !u!1 &3038219450548705349
 GameObject:
   m_ObjectHideFlags: 0

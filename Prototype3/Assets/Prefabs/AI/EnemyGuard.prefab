@@ -287,7 +287,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_sightDegrees: 40
-  m_sightRange: 22.5
+  m_sightRange: 18
   m_castRadius: 1
   m_memoryDuration: 5
   m_sightLayer:
@@ -313,8 +313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5abcd1a103f0e674286658959c5f7446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_hearingRange: 10
-  debugGameObject: {fileID: 0}
+  m_hearingRange: 8
   m_recieverLayer:
     serializedVersion: 2
     m_Bits: 769
@@ -1048,7 +1047,18 @@ MonoBehaviour:
         m_CallState: 2
   eventTwo:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3022805217224183233}
+        m_MethodName: PlayFootStep
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   eventThree:
     m_PersistentCalls:
       m_Calls: []
@@ -2460,6 +2470,7 @@ GameObject:
   - component: {fileID: 425663356}
   - component: {fileID: 1565689685}
   - component: {fileID: 5417924798788740746}
+  - component: {fileID: 5689994226034447310}
   m_Layer: 9
   m_Name: EnemyGuard
   m_TagString: Untagged
@@ -2509,6 +2520,7 @@ MonoBehaviour:
   m_shotOrigin: {fileID: 1776482531}
   m_aliveCollider: {fileID: 1565689685}
   m_deathCollider: {fileID: 5417924798788740746}
+  m_routeWaypointID: -1
   m_myRoute: {fileID: 0}
   m_visionSpeed: 0.25
   m_visionMinEuler: {x: -20, y: 0, z: 0}
@@ -2600,6 +2612,25 @@ CapsuleCollider:
   m_Height: 2.8
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0.98}
+--- !u!114 &5689994226034447310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8377122872067108714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20c936e73eec43a43969c7948e51a2a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localVolume: 1
+  isMuted: 0
+  audioClips:
+  - {fileID: 8300000, guid: c804ddb985a72d241aaad0b051580e27, type: 3}
+  - {fileID: 8300000, guid: 7f601dc54d5c5534e8c4af871f8cabd7, type: 3}
+  audioPlayersCount: 5
+  channel: 1
 --- !u!1 &8478897228566672269
 GameObject:
   m_ObjectHideFlags: 0
