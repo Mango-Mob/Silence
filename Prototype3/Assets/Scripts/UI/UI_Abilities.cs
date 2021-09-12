@@ -9,10 +9,19 @@ public class UI_Abilities : UI_Element
     public float m_fadeSpeed = 0.2f;
     public float m_alphaMin = 0.3f;
 
+    [Header("Cooldown Sprites")]
+    public Image m_headCD;
+    public Image m_armCD;
+
+    [Header("Duration Sprites")]
+    public Image m_headDuration;
+
     [Header("Ability Sprites")]
     public Image m_head;
     public Image m_arm;
     public Image m_legs;
+
+    public PlayerMovement m_playerMovement;
 
     // Start is called before the first frame update
     void Start()
@@ -25,9 +34,23 @@ public class UI_Abilities : UI_Element
     // Update is called once per frame
     void Update()
     {
-        float newAlpha = m_canvasGroup.alpha - Time.deltaTime * m_fadeSpeed;
-        newAlpha = Mathf.Clamp(newAlpha, m_alphaMin, 1.0f);
-        m_canvasGroup.alpha = newAlpha;
+
+        if (m_playerMovement.m_invisibilityTimer > 0.0f || 
+            m_playerMovement.m_invisibilityCDTimer > 0.0f || 
+            m_playerMovement.m_grappleCDTimer > 0.0f)
+        {
+            m_canvasGroup.alpha = 1.0f;
+        }
+        else
+        {
+            float newAlpha = m_canvasGroup.alpha - Time.deltaTime * m_fadeSpeed;
+            newAlpha = Mathf.Clamp(newAlpha, m_alphaMin, 1.0f);
+            m_canvasGroup.alpha = newAlpha;
+        }
+
+        m_headDuration.fillAmount = m_playerMovement.m_invisibilityTimer / m_playerMovement.m_invisibilityDuration;
+        m_headCD.fillAmount = m_playerMovement.m_invisibilityCDTimer / m_playerMovement.m_invisibilityCD;
+        m_armCD.fillAmount = m_playerMovement.m_grappleCDTimer / m_playerMovement.m_grappleCD;
     }
 
     public void SetHeadSprite(Sprite _sprite)

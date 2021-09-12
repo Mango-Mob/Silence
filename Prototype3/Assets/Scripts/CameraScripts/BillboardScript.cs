@@ -7,6 +7,7 @@ public class BillboardScript : MonoBehaviour
 {
     void Update()
     {
-        transform.forward = -Camera.main.transform.forward;
+        if(Camera.main != null)
+            transform.forward = -Camera.main.transform.forward;
     }
 }

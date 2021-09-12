@@ -21,9 +21,14 @@ public enum LegsAbility
 
 public class PlayerMovement : MonoBehaviour
 {
-    public Volume processVolume;
     public PlayerCamera playerCamera { get; private set; }
+    public MultiAudioAgent audioAgent { get; private set; }
     public Animator m_animator { get; private set; }
+    public LayerMask m_noiseMask;
+
+    [Header("Player Death")]
+    public string m_nextScreen = "MainMenu";
+    public bool m_dead { get; private set; } = false;
 
     [Header("Movement Attributes")]
     public float m_speed = 8.0f;
@@ -36,11 +41,7 @@ public class PlayerMovement : MonoBehaviour
     public float m_crouchVisibility = 0.5f;
     public float m_visibility { get; private set; } // Much requested visibility variable 
 
-    private Vector3 m_lastPosition;
-    private Vector3 m_calculatedVelocity = Vector3.zero;
-
-    [Header("Head Collision")]
-    public Transform m_headCollisionPosition;
+    [Header("Crouching")]
     public LayerMask m_headCollisionMask;
 
     private bool m_isCrouching = false;
@@ -50,6 +51,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 m_velocity = Vector3.zero;
     private CharacterController charController;
     private bool m_grounded = false;
+
+    public Volume crouchVolume;
 
     [Header("Abilities")]
     public HeadAbility m_headAbility;
@@ -64,9 +67,14 @@ public class PlayerMovement : MonoBehaviour
     public float m_grappleProjectileSpeed = 5.0f;
     public Transform m_grappleEnd;
 
+    public float m_grappleForgiveDistance = 0.5f;
+
     private Vector3 m_grappleHitPos;
     private HookMode m_hookMode = HookMode.idle;
     private float m_grappleShotLerp = 0.0f;
+
+    public float m_grappleCD = 45.0f;
+    public float m_grappleCDTimer = 0.0f;
 
     [Header("Wall Running")]
     public Transform m_wallColliderL;
@@ -78,13 +86,14 @@ public class PlayerMovement : MonoBehaviour
     private WallDir m_currentWall = WallDir.none;
 
     private float m_tiltVelocity = 0.0f;
+    private float m_xTiltVelocity = 0.0f;
     private bool m_wallRunRefreshed = true;
 
     [Header("Invisibility")]
     public float m_invisibilityDuration = 5.0f;
-    private float m_invisibilityTimer = 0.0f;
+    public float m_invisibilityTimer = 0.0f;
     public float m_invisibilityCD = 45.0f;
-    private float m_invisibilityCDTimer = 0.0f;
+    public float m_invisibilityCDTimer = 0.0f;
 
     private bool m_isInvisible = false;
 
@@ -108,15 +117,23 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         m_animator = GetComponentInChildren<Animator>();
-        m_lastPosition = transform.position;
         charController = GetComponent<CharacterController>();
         playerCamera = GetComponent<PlayerCamera>();
+        audioAgent = GetComponent<MultiAudioAgent>();
         m_cameraOffset = playerCamera.m_camera.transform.localPosition.y;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (InputManager.instance.IsKeyDown(KeyType.K))
+            KillPlayer();
+        if (m_dead)
+        {
+            playerCamera.m_xRotation = Mathf.SmoothDampAngle(playerCamera.m_xRotation, -85.0f, ref m_xTiltVelocity, 0.2f);
+            playerCamera.m_zRotation = Mathf.SmoothDampAngle(playerCamera.m_zRotation, 85.0f, ref m_tiltVelocity, 0.3f);
+        }
+
         bool leftGround = false;
         if (!charController.isGrounded && m_grounded)
         {
@@ -126,7 +143,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Player movement
         Vector2 movementInput = Vector2.zero;
-        if (!m_isWallRunning)
+        if (!m_isWallRunning && !m_dead)
             movementInput = GetMovementInput();
         Vector3 moveDirection = transform.right * movementInput.x + transform.forward * movementInput.y;
 
@@ -135,6 +152,8 @@ public class PlayerMovement : MonoBehaviour
         m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
         m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
 
+        if (m_animator.GetBool("IsRunning"))
+            NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
 
         if (leftGround)
         {
@@ -199,7 +218,6 @@ public class PlayerMovement : MonoBehaviour
             //m_velocity = Vector3.Lerp(m_velocity, m_calculatedVelocity, 0.1f);
         }
 
-
         // Grounded checks
         if (m_grounded && m_velocity.y < 0.0f && m_hookMode != HookMode.pulling)
         {
@@ -222,13 +240,13 @@ public class PlayerMovement : MonoBehaviour
             m_velocity.y = 0;
 
         // Jumping
-        if (charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
+        if (!m_dead && charController.isGrounded && InputManager.instance.IsKeyDown(KeyType.SPACE))
         {
             m_velocity.y = m_jumpSpeed;
         }
 
         // Crouching
-        if (InputManager.instance.IsKeyDown(KeyType.L_CTRL))
+        if (InputManager.instance.IsKeyDown(KeyType.L_CTRL) && !m_dead)
         {
             m_isCrouching = !m_isCrouching;
         }
@@ -242,8 +260,8 @@ public class PlayerMovement : MonoBehaviour
 
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
-        if (processVolume != null)
-            processVolume.weight = 1.0f - m_crouchLerp;
+        if (crouchVolume != null)
+            crouchVolume.weight = 1.0f - m_crouchLerp;
 
         playerCamera.m_camera.transform.localPosition = new Vector3(0, Mathf.Lerp(0.0f, m_cameraOffset, m_crouchLerp), 0);
 
@@ -255,6 +273,20 @@ public class PlayerMovement : MonoBehaviour
         StealthDetection();
 
         charController.Move(moveDirection * currentSpeed * Time.deltaTime + m_velocity * Time.deltaTime + 0.5f * deltaHeight * Vector3.up);
+    }
+    public void KillPlayer()
+    {
+        if (m_dead)
+            return;
+
+        //LevelLoader.instance.LoadNewLevel(m_nextScreen);
+        gameObject.layer = 2;
+        m_dead = true;
+        m_isCrouching = false;
+        m_hookMode = HookMode.retracting;
+        m_isInvisible = false;
+        m_isWallRunning = false;
+        m_currentWall = WallDir.none;
     }
     private void StealthDetection()
     {
@@ -294,7 +326,10 @@ public class PlayerMovement : MonoBehaviour
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
         m_grappleSource.SetPosition(1, m_grappleEnd.position);
 
-        if (InputManager.instance.GetMouseButtonDown(MouseButton.RIGHT))
+        if (m_grappleCDTimer > 0.0f)
+            m_grappleCDTimer -= Time.deltaTime;
+
+        if (InputManager.instance.GetMouseButtonDown(MouseButton.RIGHT) && !m_dead)
         {
             RaycastHit rayHit;
 
@@ -304,13 +339,25 @@ public class PlayerMovement : MonoBehaviour
                 m_animator.SetTrigger("ZipPullStart");
             }
 
-            if (m_hookMode == HookMode.idle)
+            if (m_grappleCDTimer <= 0.0f && m_hookMode == HookMode.idle)
             {
+                bool hit = false;
                 if (Physics.Raycast(playerCamera.m_camera.transform.position, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    hit = true;
+                }
+                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward, m_grappleForgiveDistance, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    hit = true;
+                }
+
+                if (hit)
                 {
                     m_grappleHitPos = rayHit.point;
                     m_hookMode = HookMode.firing;
                     m_grappleSource.enabled = true;
+
+                    m_grappleCDTimer = m_grappleCD;
                 }
                 else
                 {
@@ -319,9 +366,9 @@ public class PlayerMovement : MonoBehaviour
                     m_grappleSource.enabled = true;
                 }
                 m_animator.SetTrigger("ZipFire");
+                audioAgent.Play("HookLaunch");
             }
         }
-
 
         switch (m_hookMode)
         {
@@ -384,7 +431,7 @@ public class PlayerMovement : MonoBehaviour
         if (m_grounded)
             m_wallRunRefreshed = true;
 
-        if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed) || m_isWallRunning) && !m_grounded)
+        if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed && !m_dead) || m_isWallRunning) && !m_grounded)
         {
             Collider closestCollider = null;
             Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
@@ -473,7 +520,6 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 m_isInvisible = false;
-                m_invisibilityCDTimer = m_invisibilityCD;
             }
         }
         else
@@ -484,14 +530,20 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                if (InputManager.instance.IsKeyDown(KeyType.Q))
+                if (InputManager.instance.IsKeyDown(KeyType.Q) && !m_dead)
                 { 
                     m_animator.SetTrigger("Snap");
                     m_invisibilityTimer = m_invisibilityDuration;
-                    m_isInvisible = true;
                 }
             }
         }
+    }
+
+    public void StartInvis()
+    {
+        audioAgent.Play("InvisSnap");
+        m_invisibilityCDTimer = m_invisibilityCD;
+        m_isInvisible = true;
     }
     private Vector2 GetMovementInput()
     {

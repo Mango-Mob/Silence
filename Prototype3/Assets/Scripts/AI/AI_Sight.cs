@@ -216,7 +216,7 @@ public class AI_Sight : MonoBehaviour
         {
             foreach (var hit in hits)
             {   
-                if(hit.collider.gameObject.layer != LayerMask.NameToLayer("Environment"))
+                if(hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy"))
                 {
                     float curr = Vector3.Distance(hit.point, transform.position);
                     if (curr < dist)
@@ -243,14 +243,31 @@ public class AI_Sight : MonoBehaviour
     private void UpdateDetection()
     {
         List<Collider> newList = new List<Collider>(Physics.OverlapSphere(transform.position, m_sightRange, m_sightLayer));
-
+        if(newList.Count >= 2)
+        {
+            int j = 0;
+        }
         //Search the whole list for any within sight
         for (int i = newList.Count - 1; i >= 0; i--)
         {
             if (IsWithinSight(newList[i].transform.position) && CanRaycastTo(newList[i]))
             {
                 //Remove it from the last know locations
-                RemoveFromInterest(newList[i]);
+                if (newList[i].gameObject.layer == LayerMask.NameToLayer("Player"))
+                {
+                    if (newList[i].gameObject.GetComponent<PlayerMovement>().m_visibility == 0.0f)
+                    {
+                        newList.RemoveAt(i);
+                    }
+                    else
+                    {
+                        RemoveFromInterest(newList[i]);
+                    }
+                }
+                else
+                {
+                    RemoveFromInterest(newList[i]);
+                }
             }
             else
             {
