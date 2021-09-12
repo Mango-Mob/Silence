@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum InterestType
 {
@@ -82,9 +83,8 @@ public class AI_Brain : MonoBehaviour
     public float m_visionSpeed = 5.0f;
     public Vector3 m_visionMinEuler;
     public Vector3 m_visionMaxEuler;
-    public Transform m_neckTransform;
-    public SpriteRenderer m_attentionBar;
-    public SpriteRenderer m_agressionBar;
+    public Image m_attentionBar;
+    public Image m_agressionBar;
 
     public struct AlliedInfo
     {
@@ -154,12 +154,15 @@ public class AI_Brain : MonoBehaviour
 
         m_animator.SetVelocity(m_myLegs.GetVelocity());
 
-        m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
-        m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
+        m_agressionBar.fillAmount = m_agression;
+        m_attentionBar.fillAmount = m_attention;
     }
 
     public bool KillGuard(Vector3 killerLoc)
     {
+        if (m_myState == AI_State.Dead)
+            return false;
+
         Quaternion lookTo = Quaternion.LookRotation((killerLoc - transform.position).normalized);
         float dist = Vector3.Distance(killerLoc, transform.position);
         if(Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo)) >= m_immuneRange && dist <= m_maxKillDist)
@@ -571,9 +574,10 @@ public class AI_Brain : MonoBehaviour
                 default:
                 case AI_State.Alert:
                 case AI_State.Investigating:
+                    break;
                 case AI_State.Hunting:
                 case AI_State.Engaging:
-                    m_agression = 1.0f;
+                    m_agression += m_aggressionDecay * Time.deltaTime;
                     break;
             }
         }
@@ -625,6 +629,7 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
+                m_myLegs.LookAtTarget(45);
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 m_animator.Engage();
                 break;
