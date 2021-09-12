@@ -74,6 +74,26 @@ public class AI_Path : MonoBehaviour
         
         return false;
     }
+
+    public int IncrementIndex(int index)
+    {
+        index += 1;
+        if (index > m_points.Count)
+            index -= m_points.Count;
+        return index;
+    }
+
+    public Vector3 GetWaypoint(int index)
+    {
+        if (index < 0)
+            return Vector3.zero;
+
+        if (index >= m_points.Count)
+            return m_points[0].position;
+
+        return m_points[index].position;
+    }
+
     public Vector3 GetNextWaypoint(Vector3 position)
     {
         float dist = float.MaxValue;
@@ -97,6 +117,33 @@ public class AI_Path : MonoBehaviour
         return m_points[++result].position;
     }
 
+    public Vector3 GetNextWaypoint(Vector3 position, out int resultIndex)
+    {
+        float dist = float.MaxValue;
+        int result = -1;
+        for (int i = 0; i < m_points.Count; i++)
+        {
+            float curr = Vector3.Distance(m_points[i].position, position);
+            if (curr < dist)
+            {
+                dist = curr;
+                result = i;
+            }
+        }
+
+        resultIndex = result;
+
+        if (result == -1)
+            return position;
+
+        if (result == m_points.Count - 1)
+            result = -1;
+
+        resultIndex = result;
+
+        return m_points[++result].position;
+    }
+
     public Quaternion GetLookDirection(Vector3 position)
     {
         if(m_points.Count > 1)
@@ -112,6 +159,7 @@ public class AI_Path : MonoBehaviour
                     result = item;
                 }
             }
+            Debug.DrawRay(result.position, result.forward * 5, Color.cyan, 0.5f);
             return Quaternion.LookRotation(result.forward, Vector3.up);
         }
         return Quaternion.identity;
@@ -130,6 +178,26 @@ public class AI_Path : MonoBehaviour
                 result = item.position;
             }
         }
+        return result;
+    }
+
+    public Vector3 GetClosestWaypoint(Vector3 position, out int index)
+    {
+        float dist = float.MaxValue;
+        Vector3 result = position;
+        int resultIndex = -1;
+        for (int i = 0; i < m_points.Count; i++)
+        {
+            float curr = Vector3.Distance(m_points[i].position, position);
+            if (curr < dist)
+            {
+                dist = curr;
+                result = m_points[i].position;
+                resultIndex = i;
+            }
+        }
+        index = resultIndex;
+
         return result;
     }
 }
