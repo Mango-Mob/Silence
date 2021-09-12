@@ -16,9 +16,9 @@ TagManager:
   - Player
   - Enemy
   - Environment
-  - 
-  - 
-  - 
+  - Item VFX
+  - EnvironPP
+  - PlayerPP
   - 
   - 
   - 
