@@ -9,7 +9,7 @@ public class BasicProjectile : MonoBehaviour
     {
         if(collision.collider.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            //collision.rigidbody.gameObject.GetComponents<PlayerMovement>().Kill();
+            collision.collider.gameObject.GetComponent<PlayerMovement>().KillPlayer();
         }
         Destroy(gameObject);
     }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum InterestType
 {
@@ -63,22 +64,27 @@ public class AI_Brain : MonoBehaviour
     public GameObject m_targetTransform;
     public float m_timeDelayBetweenShots;
     public Transform m_shotOrigin;
+
+    public Collider m_aliveCollider;
+    public Collider m_deathCollider;
+
     private float m_shotDelay = 0f;
+    public int m_routeWaypointID = -1;
 
     private AI_Legs m_myLegs;
     [SerializeField] private AI_Path m_myRoute;
     private AI_Sight m_mySight;
     private AI_Hearing m_myHearing;
     private AI_Animator m_animator;
+    private MultiAudioAgent m_agent;
 
     private Vector3 m_targetWaypoint;
     [Header("Vision Variables")]
     public float m_visionSpeed = 5.0f;
     public Vector3 m_visionMinEuler;
     public Vector3 m_visionMaxEuler;
-    public Transform m_neckTransform;
-    public SpriteRenderer m_attentionBar;
-    public SpriteRenderer m_agressionBar;
+    public Image m_attentionBar;
+    public Image m_agressionBar;
 
     public struct AlliedInfo
     {
@@ -117,6 +123,8 @@ public class AI_Brain : MonoBehaviour
     private void Awake()
     {
         Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Enemy"), LayerMask.NameToLayer("EnemyProjectile"));
+        m_aliveCollider.enabled = true;
+        m_deathCollider.enabled = false;
     }
     // Start is called before the first frame update
     void Start()
@@ -134,6 +142,7 @@ public class AI_Brain : MonoBehaviour
         m_mySight = GetComponentInChildren<AI_Sight>();
         m_myHearing = GetComponentInChildren<AI_Hearing>();
         m_animator = GetComponentInChildren<AI_Animator>();
+        m_agent = GetComponent<MultiAudioAgent>();
         m_idleTimer += 3.5f;
     }
 
@@ -145,12 +154,15 @@ public class AI_Brain : MonoBehaviour
 
         m_animator.SetVelocity(m_myLegs.GetVelocity());
 
-        m_agressionBar.transform.localScale = new Vector3(m_agression, 1, 1);
-        m_attentionBar.transform.localScale = new Vector3(m_attention, 1, 1);
+        m_agressionBar.fillAmount = m_agression;
+        m_attentionBar.fillAmount = m_attention;
     }
 
     public bool KillGuard(Vector3 killerLoc)
     {
+        if (m_myState == AI_State.Dead)
+            return false;
+
         Quaternion lookTo = Quaternion.LookRotation((killerLoc - transform.position).normalized);
         float dist = Vector3.Distance(killerLoc, transform.position);
         if(Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo)) >= m_immuneRange && dist <= m_maxKillDist)
@@ -303,6 +315,8 @@ public class AI_Brain : MonoBehaviour
                 HearingCheck();
                 break;
             case AI_State.Dead:
+                m_aliveCollider.enabled = false;
+                m_deathCollider.enabled = true;
                 break;
             case AI_State.Meeting:
                 if(m_myLegs.IsResting())
@@ -560,8 +574,10 @@ public class AI_Brain : MonoBehaviour
                 default:
                 case AI_State.Alert:
                 case AI_State.Investigating:
+                    break;
                 case AI_State.Hunting:
                 case AI_State.Engaging:
+                    m_agression += m_aggressionDecay * Time.deltaTime;
                     break;
             }
         }
@@ -584,16 +600,22 @@ public class AI_Brain : MonoBehaviour
                 m_myLegs.Halt();
                 break;
             case AI_State.ReturnToPatrol:
-                m_targetWaypoint = m_myRoute.GetClosestWaypoint(transform.position);
+                m_targetWaypoint = m_myRoute.GetWaypoint(m_routeWaypointID); //m_myRoute.GetClosestWaypoint(transform.position, out m_routeWaypointID);
                 m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                 m_myLegs.LookAtTarget();
                 break;
             case AI_State.Patrol:
-                m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position);
+                if (m_routeWaypointID == -1)
+                    m_targetWaypoint = m_myRoute.GetNextWaypoint(transform.position, out m_routeWaypointID);
+                else
+                    m_targetWaypoint = m_myRoute.GetWaypoint(m_routeWaypointID);
+
+                m_routeWaypointID = m_myRoute.IncrementIndex(m_routeWaypointID);
+
                 m_myLegs.m_runMode = false;
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint);
-                m_myLegs.LookAtTarget();
+                m_myLegs.LookAtVelocity();
                 break;
             case AI_State.Alert:
                 m_myLegs.m_runMode = true;
@@ -607,6 +629,7 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
+                m_myLegs.LookAtTarget(45);
                 m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
                 m_animator.Engage();
                 break;
@@ -653,10 +676,15 @@ public class AI_Brain : MonoBehaviour
     public void SpawnProjectile(GameObject prefab)
     {
         Vector3 direction = (m_targetTransform.transform.position - m_shotOrigin.transform.position).normalized;
-
+        m_agent.Play("Gunshot");
         Rigidbody proj = Instantiate(prefab, m_shotOrigin.transform.position, Quaternion.LookRotation(direction, Vector3.up)).GetComponent<Rigidbody>();
         proj.AddForce(direction * 0.3f, ForceMode.Impulse);
         m_shotDelay += 0.3f;
+    }
+
+    public void PlayFootStep()
+    {
+        m_agent.PlayOnce("GuardFootstep", false, UnityEngine.Random.Range(0.85f, 1.25f));
     }
 
     private void OnDrawGizmos()
@@ -670,6 +698,14 @@ public class AI_Brain : MonoBehaviour
         {
             Gizmos.DrawSphere(m_meetingLoc, 0.4f);
         }
+
+        if(m_currentInterest.HasValue)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(m_currentInterest.Value.lastKnownLocation, 1.0f);
+        }
+
+        Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + transform.forward);
         Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, m_immuneRange, 0) * transform.forward) * m_maxKillDist);
         Gizmos.DrawLine(transform.position, transform.position + (Quaternion.Euler(0, -m_immuneRange, 0) * transform.forward) * m_maxKillDist);

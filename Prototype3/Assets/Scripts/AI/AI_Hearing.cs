@@ -8,7 +8,6 @@ public class AI_Hearing : MonoBehaviour
 {
 
     public float m_hearingRange;
-    public GameObject debugGameObject;
     public LayerMask m_recieverLayer;
     public float m_memoryDuration;
 
@@ -33,12 +32,7 @@ public class AI_Hearing : MonoBehaviour
     
     // Update is called once per frame
     void Update()
-    {
-        if(InputManager.instance.IsKeyDown(KeyType.J))
-        {
-            NoiseManager.instance.CreateNoise(debugGameObject.transform.position, 25.0f, debugGameObject.layer, 0.1f);
-        }
-        
+    {       
         DetectionUpdate();
         UpdateInterest();
         SightCheck();

@@ -21,9 +21,10 @@ public enum LegsAbility
 
 public class PlayerMovement : MonoBehaviour
 {
-    public Volume processVolume;
     public PlayerCamera playerCamera { get; private set; }
+    public MultiAudioAgent audioAgent { get; private set; }
     public Animator m_animator { get; private set; }
+    public LayerMask m_noiseMask;
 
     [Header("Player Death")]
     public string m_nextScreen = "MainMenu";
@@ -40,11 +41,7 @@ public class PlayerMovement : MonoBehaviour
     public float m_crouchVisibility = 0.5f;
     public float m_visibility { get; private set; } // Much requested visibility variable 
 
-    private Vector3 m_lastPosition;
-    private Vector3 m_calculatedVelocity = Vector3.zero;
-
-    [Header("Head Collision")]
-    public Transform m_headCollisionPosition;
+    [Header("Crouching")]
     public LayerMask m_headCollisionMask;
 
     private bool m_isCrouching = false;
@@ -54,6 +51,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 m_velocity = Vector3.zero;
     private CharacterController charController;
     private bool m_grounded = false;
+
+    public Volume crouchVolume;
 
     [Header("Abilities")]
     public HeadAbility m_headAbility;
@@ -68,11 +67,17 @@ public class PlayerMovement : MonoBehaviour
     public float m_grappleProjectileSpeed = 5.0f;
     public Transform m_grappleEnd;
 
+    public float m_grappleForgiveDistance = 0.5f;
+
     private Vector3 m_grappleHitPos;
     private HookMode m_hookMode = HookMode.idle;
     private float m_grappleShotLerp = 0.0f;
 
+    public float m_grappleCD = 45.0f;
+    public float m_grappleCDTimer = 0.0f;
+
     [Header("Wall Running")]
+    public LayerMask m_wallCollisionMask;
     public Transform m_wallColliderL;
     public Transform m_wallColliderR;
     public float m_wallRunGravity = 3.0f;
@@ -87,9 +92,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Invisibility")]
     public float m_invisibilityDuration = 5.0f;
-    private float m_invisibilityTimer = 0.0f;
+    public float m_invisibilityTimer = 0.0f;
     public float m_invisibilityCD = 45.0f;
-    private float m_invisibilityCDTimer = 0.0f;
+    public float m_invisibilityCDTimer = 0.0f;
 
     private bool m_isInvisible = false;
 
@@ -113,9 +118,9 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         m_animator = GetComponentInChildren<Animator>();
-        m_lastPosition = transform.position;
         charController = GetComponent<CharacterController>();
         playerCamera = GetComponent<PlayerCamera>();
+        audioAgent = GetComponent<MultiAudioAgent>();
         m_cameraOffset = playerCamera.m_camera.transform.localPosition.y;
     }
 
@@ -148,6 +153,8 @@ public class PlayerMovement : MonoBehaviour
         m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
         m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
 
+        if (m_animator.GetBool("IsRunning"))
+            NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
 
         if (leftGround)
         {
@@ -254,8 +261,8 @@ public class PlayerMovement : MonoBehaviour
 
         m_crouchLerp = Mathf.Clamp(m_crouchLerp, 0.0f, 1.0f);
 
-        if (processVolume != null)
-            processVolume.weight = 1.0f - m_crouchLerp;
+        if (crouchVolume != null)
+            crouchVolume.weight = 1.0f - m_crouchLerp;
 
         playerCamera.m_camera.transform.localPosition = new Vector3(0, Mathf.Lerp(0.0f, m_cameraOffset, m_crouchLerp), 0);
 
@@ -274,6 +281,7 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         //LevelLoader.instance.LoadNewLevel(m_nextScreen);
+        gameObject.layer = 2;
         m_dead = true;
         m_isCrouching = false;
         m_hookMode = HookMode.retracting;
@@ -319,6 +327,9 @@ public class PlayerMovement : MonoBehaviour
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
         m_grappleSource.SetPosition(1, m_grappleEnd.position);
 
+        if (m_grappleCDTimer > 0.0f)
+            m_grappleCDTimer -= Time.deltaTime;
+
         if (InputManager.instance.GetMouseButtonDown(MouseButton.RIGHT) && !m_dead)
         {
             RaycastHit rayHit;
@@ -329,13 +340,25 @@ public class PlayerMovement : MonoBehaviour
                 m_animator.SetTrigger("ZipPullStart");
             }
 
-            if (m_hookMode == HookMode.idle)
+            if (m_grappleCDTimer <= 0.0f && m_hookMode == HookMode.idle)
             {
+                bool hit = false;
                 if (Physics.Raycast(playerCamera.m_camera.transform.position, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    hit = true;
+                }
+                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward, m_grappleForgiveDistance, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                {
+                    hit = true;
+                }
+
+                if (hit)
                 {
                     m_grappleHitPos = rayHit.point;
                     m_hookMode = HookMode.firing;
                     m_grappleSource.enabled = true;
+
+                    m_grappleCDTimer = m_grappleCD;
                 }
                 else
                 {
@@ -344,9 +367,9 @@ public class PlayerMovement : MonoBehaviour
                     m_grappleSource.enabled = true;
                 }
                 m_animator.SetTrigger("ZipFire");
+                audioAgent.Play("HookLaunch");
             }
         }
-
 
         switch (m_hookMode)
         {
@@ -412,7 +435,7 @@ public class PlayerMovement : MonoBehaviour
         if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed && !m_dead) || m_isWallRunning) && !m_grounded)
         {
             Collider closestCollider = null;
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_wallCollisionMask);
 
             float smallestDistance = 20.0f;
 
@@ -498,7 +521,6 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 m_isInvisible = false;
-                m_invisibilityCDTimer = m_invisibilityCD;
             }
         }
         else
@@ -513,10 +535,16 @@ public class PlayerMovement : MonoBehaviour
                 { 
                     m_animator.SetTrigger("Snap");
                     m_invisibilityTimer = m_invisibilityDuration;
-                    m_isInvisible = true;
                 }
             }
         }
+    }
+
+    public void StartInvis()
+    {
+        audioAgent.Play("InvisSnap");
+        m_invisibilityCDTimer = m_invisibilityCD;
+        m_isInvisible = true;
     }
     private Vector2 GetMovementInput()
     {
