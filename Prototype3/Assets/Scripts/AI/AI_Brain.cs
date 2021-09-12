@@ -160,6 +160,9 @@ public class AI_Brain : MonoBehaviour
 
     public bool KillGuard(Vector3 killerLoc)
     {
+        if (m_myState == AI_State.Dead)
+            return false;
+
         Quaternion lookTo = Quaternion.LookRotation((killerLoc - transform.position).normalized);
         float dist = Vector3.Distance(killerLoc, transform.position);
         if(Mathf.Abs(Quaternion.Angle(transform.rotation, lookTo)) >= m_immuneRange && dist <= m_maxKillDist)
@@ -571,9 +574,10 @@ public class AI_Brain : MonoBehaviour
                 default:
                 case AI_State.Alert:
                 case AI_State.Investigating:
+                    break;
                 case AI_State.Hunting:
                 case AI_State.Engaging:
-                    m_agression = 1.0f;
+                    m_agression += m_aggressionDecay * Time.deltaTime;
                     break;
             }
         }
@@ -625,9 +629,9 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
-                m_myLegs.LookAtTarget();
-                //m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
-                //m_animator.Engage();
+                m_myLegs.LookAtTarget(45);
+                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                m_animator.Engage();
                 break;
             case AI_State.Dead:
                 m_myLegs.m_runMode = false;
