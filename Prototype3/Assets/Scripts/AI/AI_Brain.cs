@@ -161,7 +161,7 @@ public class AI_Brain : MonoBehaviour
     public bool KillGuard(Vector3 killerLoc)
     {
         if (m_myState == AI_State.Dead)
-            return;
+            return false;
 
         Quaternion lookTo = Quaternion.LookRotation((killerLoc - transform.position).normalized);
         float dist = Vector3.Distance(killerLoc, transform.position);
