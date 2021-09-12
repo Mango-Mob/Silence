@@ -119,6 +119,7 @@ public class AI_Legs : MonoBehaviour
 
     public void SetTargetOrientation(Quaternion orient)
     {
+        m_islookAtVelocity = false;
         m_targetOrientation = orient;
     }
 
