@@ -599,6 +599,7 @@ GameObject:
   - component: {fileID: 1263316920918627367}
   - component: {fileID: 2276973143171636034}
   - component: {fileID: 7195441363853788580}
+  - component: {fileID: 62259038}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -679,8 +680,11 @@ MonoBehaviour:
   m_grappleProjectileSpeed: 5
   m_grappleEnd: {fileID: 6377491267872094487}
   m_grappleForgiveDistance: 1
-  m_grappleCD: 10
+  m_grappleCD: 5
   m_grappleCDTimer: 0
+  m_wallCollisionMask:
+    serializedVersion: 2
+    m_Bits: 1024
   m_wallColliderL: {fileID: 996317606}
   m_wallColliderR: {fileID: 720680546}
   m_wallRunGravity: 1
@@ -746,6 +750,20 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 35bd623967361ec45aa7242e7ae84706, type: 3}
   audioPlayersCount: 5
   channel: 1
+--- !u!114 &62259038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1263316920918627366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43597b9c9d8f9ea4b9dc00f39c15f6db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  softRange: 15
+  hardRange: 4.5
 --- !u!1 &1359088570751359070
 GameObject:
   m_ObjectHideFlags: 0
