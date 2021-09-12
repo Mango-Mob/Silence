@@ -11,6 +11,9 @@ public class PlayerInteractor : MonoBehaviour
     public LayerMask m_layerMask;
     public bool m_hasKnife = true;
 
+    public float m_knifeDelay = 1.0f;
+    private float m_knifeTimer = 0.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,8 +48,11 @@ public class PlayerInteractor : MonoBehaviour
             }
         }
 
-        if (InputManager.instance.GetMouseDown(MouseButton.LEFT) && m_hasKnife && !playerMovement.m_dead)
+        if (m_knifeTimer > 0.0f)
+            m_knifeTimer -= Time.deltaTime;
+        if (InputManager.instance.GetMouseDown(MouseButton.LEFT) && m_hasKnife && !playerMovement.m_dead && m_knifeTimer <= 0.0f)
         {
+            m_knifeTimer = m_knifeDelay;
             playerMovement.m_animator.SetTrigger("Stab");
             playerMovement.audioAgent.Play("Stab");
         }
