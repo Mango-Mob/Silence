@@ -625,8 +625,9 @@ public class AI_Brain : MonoBehaviour
                 break;
             case AI_State.Engaging:
                 m_myLegs.m_runMode = true;
-                m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
-                m_animator.Engage();
+                m_myLegs.LookAtTarget();
+                //m_myLegs.LookAtDirection(m_targetWaypoint - transform.position);
+                //m_animator.Engage();
                 break;
             case AI_State.Dead:
                 m_myLegs.m_runMode = false;
