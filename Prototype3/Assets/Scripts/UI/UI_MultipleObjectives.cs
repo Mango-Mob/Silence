@@ -23,6 +23,10 @@ public class UI_MultipleObjectives : MonoBehaviour
         {
             m_maxMoney += loot.m_currentValue;
         }
+
+        m_maxMoney *= 0.75f; // only need 75% of money
+        m_maxMoney -= m_maxMoney % 10; // rounding
+
         ObjectiveText = GetComponent<TMP_Text>();
         TaskUpdate();
 

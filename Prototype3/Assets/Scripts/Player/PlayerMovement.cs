@@ -153,9 +153,6 @@ public class PlayerMovement : MonoBehaviour
         m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
         m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
 
-        if (m_animator.GetBool("IsRunning"))
-            NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
-
         if (leftGround)
         {
             m_velocity.x += moveDirection.x * currentSpeed;
@@ -322,6 +319,12 @@ public class PlayerMovement : MonoBehaviour
                 break;
         }
     }
+    public void Footstep()
+    {
+        NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
+        audioAgent.Play("Footstep");
+    }
+
     private void GrapplingHook()
     {
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
@@ -347,8 +350,8 @@ public class PlayerMovement : MonoBehaviour
                 {
                     hit = true;
                 }
-                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward, m_grappleForgiveDistance, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
-                {
+                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward * m_grappleRange, m_grappleForgiveDistance, -playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                { // Now casts from target to player
                     hit = true;
                 }
 
@@ -407,6 +410,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     m_hookMode = HookMode.retracting;
                     m_velocity /= 5.0f;
+                    m_velocity.y += 8.0f;
                 }
                 break;
             case HookMode.retracting:
