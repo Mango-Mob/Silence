@@ -159,6 +159,7 @@ public class AI_Path : MonoBehaviour
                     result = item;
                 }
             }
+            Debug.DrawRay(result.position, result.forward * 5, Color.cyan, 0.5f);
             return Quaternion.LookRotation(result.forward, Vector3.up);
         }
         return Quaternion.identity;

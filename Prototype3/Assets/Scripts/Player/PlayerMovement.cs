@@ -77,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
     public float m_grappleCDTimer = 0.0f;
 
     [Header("Wall Running")]
+    public LayerMask m_wallCollisionMask;
     public Transform m_wallColliderL;
     public Transform m_wallColliderR;
     public float m_wallRunGravity = 3.0f;
@@ -434,7 +435,7 @@ public class PlayerMovement : MonoBehaviour
         if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed && !m_dead) || m_isWallRunning) && !m_grounded)
         {
             Collider closestCollider = null;
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_wallCollisionMask);
 
             float smallestDistance = 20.0f;
 
