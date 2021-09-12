@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4376537498619221008}
   - component: {fileID: 4376537498619221011}
   - component: {fileID: 2741681647974206889}
+  - component: {fileID: 1238659771966711294}
   m_Layer: 0
   m_Name: Loot
   m_TagString: Untagged
@@ -110,3 +111,21 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_lootValue: 10
+--- !u!114 &1238659771966711294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4376537498619221013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2729986eec0c8f2458f7e730f2185d67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

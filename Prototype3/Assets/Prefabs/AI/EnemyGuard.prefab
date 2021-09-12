@@ -925,6 +925,7 @@ GameObject:
   - component: {fileID: 7157590577263703032}
   - component: {fileID: 4655198768695277216}
   - component: {fileID: 1078639960}
+  - component: {fileID: 8608068287018175906}
   m_Layer: 0
   m_Name: Model
   m_TagString: Untagged
@@ -1069,6 +1070,24 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   animEvents: []
+--- !u!114 &8608068287018175906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125913716615244638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2729986eec0c8f2458f7e730f2185d67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 1
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 2.5
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &2181055103666653189
 GameObject:
   m_ObjectHideFlags: 0
