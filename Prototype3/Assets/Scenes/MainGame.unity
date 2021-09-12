@@ -9360,6 +9360,11 @@ MonoBehaviour:
   - {fileID: 1651411756}
   - {fileID: 1800507150}
   - {fileID: 270964740}
+  - {fileID: 2370760939446507653}
+  - {fileID: 2370760938310923598}
+  - {fileID: 1651411756}
+  - {fileID: 1800507150}
+  - {fileID: 270964740}
   ShouldReset: 0
 --- !u!1 &2370760938310923586
 GameObject:
@@ -10075,6 +10080,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 6101453288455092402, guid: b59cba8af6764cf47aa7a245e5094b99,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a7e03a3f94fd4fa45890b41052fedebc, type: 2}
     - target: {fileID: 6128265347943891389, guid: b59cba8af6764cf47aa7a245e5094b99,
         type: 3}
       propertyPath: m_Layer
