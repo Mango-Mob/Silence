@@ -277,7 +277,7 @@ public class PlayerMovement : MonoBehaviour
         if (m_dead)
             return;
 
-        //LevelLoader.instance.LoadNewLevel(m_nextScreen);
+        LevelLoader.instance.LoadNewLevel(m_nextScreen, LevelLoader.Transition.YOUDIED);
         gameObject.layer = 2;
         m_dead = true;
         m_isCrouching = false;
