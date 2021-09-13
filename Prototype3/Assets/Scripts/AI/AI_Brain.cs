@@ -309,7 +309,7 @@ public class AI_Brain : MonoBehaviour
                     m_animator.Shoot();
                 }
                 m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
-                m_myLegs.LookAtTarget(60f);
+                m_myLegs.LookAtTarget();
                 m_targetTransform.transform.position = m_targetWaypoint;
                 SensorCheck();
                 HearingCheck();
