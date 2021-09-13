@@ -1,8 +1,14 @@
 fileFormatVersion: 2
+<<<<<<< HEAD:Prototype3/Assets/Scenes/William Lawrence/Materials/BatteryCell.meta
 guid: 3c809bda81356284c840b6bbfd788211
 folderAsset: yes
 DefaultImporter:
+=======
+guid: 33326b710a1bda24a86b25108ce278cb
+NativeFormatImporter:
+>>>>>>> origin/Fetus:Prototype3/Assets/Scenes/MainGame/PlayerPostProcess Profile 1.asset.meta
   externalObjects: {}
+  mainObjectFileID: 11400000
   userData: 
   assetBundleName: 
   assetBundleVariant: 
