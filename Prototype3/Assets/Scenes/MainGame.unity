@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -2171,7 +2171,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_points.Array.data[4]
       value: 
-      objectReference: {fileID: 1987960216}
+      objectReference: {fileID: 492238969}
     - target: {fileID: 250931509530770979, guid: 25fa96bb7a3d9404a922b4c4cfa56905,
         type: 3}
       propertyPath: m_points.Array.data[5]
@@ -8655,12 +8655,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1969719896}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1987960216 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2370760938807130591, guid: 25fa96bb7a3d9404a922b4c4cfa56905,
-    type: 3}
-  m_PrefabInstance: {fileID: 511740059}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2030710867
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9296,166 +9290,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_points:
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
-  - {fileID: 2370760939446507653}
-  - {fileID: 2370760938310923598}
-  - {fileID: 1651411756}
-  - {fileID: 1800507150}
-  - {fileID: 270964740}
   - {fileID: 2370760939446507653}
   - {fileID: 2370760938310923598}
   - {fileID: 1651411756}
@@ -10625,9 +10459,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_points:
-  - {fileID: 6713686502864780038}
-  - {fileID: 9065021260641921199}
-  - {fileID: 9065021260489288845}
   - {fileID: 6713686502864780038}
   - {fileID: 9065021260641921199}
   - {fileID: 9065021260489288845}
