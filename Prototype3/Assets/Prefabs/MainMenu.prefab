@@ -1270,7 +1270,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   localVolume: 1
   isMuted: 0
-  mainClip: {fileID: 8300000, guid: 0b8adf6534c8b0c45921dfb7716a50e8, type: 3}
+  mainClip: {fileID: 8300000, guid: 895eaf71892536742a980d8f7bdc4d51, type: 3}
   channel: 2
   isPlayOnAwake: 1
   isLooping: 1

@@ -77,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
     public float m_grappleCDTimer = 0.0f;
 
     [Header("Wall Running")]
+    public LayerMask m_wallCollisionMask;
     public Transform m_wallColliderL;
     public Transform m_wallColliderR;
     public float m_wallRunGravity = 3.0f;
@@ -90,6 +91,8 @@ public class PlayerMovement : MonoBehaviour
     private bool m_wallRunRefreshed = true;
 
     [Header("Invisibility")]
+    public GameObject m_invisEffect;
+    public GameObject m_invisEffect2;
     public float m_invisibilityDuration = 5.0f;
     public float m_invisibilityTimer = 0.0f;
     public float m_invisibilityCD = 45.0f;
@@ -151,9 +154,6 @@ public class PlayerMovement : MonoBehaviour
 
         m_animator.SetBool("IsRunning", movementInput.y > 0.0f && m_grounded);
         m_animator.SetBool("IsZip", m_hookMode != HookMode.idle);
-
-        if (m_animator.GetBool("IsRunning"))
-            NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
 
         if (leftGround)
         {
@@ -279,7 +279,7 @@ public class PlayerMovement : MonoBehaviour
         if (m_dead)
             return;
 
-        //LevelLoader.instance.LoadNewLevel(m_nextScreen);
+        LevelLoader.instance.LoadNewLevel(m_nextScreen, LevelLoader.Transition.YOUDIED);
         gameObject.layer = 2;
         m_dead = true;
         m_isCrouching = false;
@@ -304,6 +304,8 @@ public class PlayerMovement : MonoBehaviour
                 m_invisibilityTimer = 0.0f;
                 break;
         }
+        m_invisEffect.SetActive(m_isInvisible);
+        m_invisEffect2.SetActive(m_isInvisible);
         switch (m_armAbility)
         {
             case ArmAbility.grapplingHook:
@@ -321,6 +323,15 @@ public class PlayerMovement : MonoBehaviour
                 break;
         }
     }
+    public void Footstep()
+    {
+        if (!m_grounded)
+            return;
+
+        NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
+        audioAgent.Play("Footstep");
+    }
+
     private void GrapplingHook()
     {
         m_grappleSource.SetPosition(0, m_grappleSource.transform.position);
@@ -346,8 +357,8 @@ public class PlayerMovement : MonoBehaviour
                 {
                     hit = true;
                 }
-                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward, m_grappleForgiveDistance, playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
-                {
+                else if (Physics.SphereCast(playerCamera.m_camera.transform.position + playerCamera.m_camera.transform.forward * m_grappleRange, m_grappleForgiveDistance, -playerCamera.m_camera.transform.forward, out rayHit, m_grappleRange, m_headCollisionMask))
+                { // Now casts from target to player
                     hit = true;
                 }
 
@@ -406,6 +417,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     m_hookMode = HookMode.retracting;
                     m_velocity /= 5.0f;
+                    m_velocity.y += 8.0f;
                 }
                 break;
             case HookMode.retracting:
@@ -434,7 +446,7 @@ public class PlayerMovement : MonoBehaviour
         if (((InputManager.instance.IsKeyDown(KeyType.SPACE) && m_wallRunRefreshed && !m_dead) || m_isWallRunning) && !m_grounded)
         {
             Collider closestCollider = null;
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_headCollisionMask);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 0.75f, m_wallCollisionMask);
 
             float smallestDistance = 20.0f;
 

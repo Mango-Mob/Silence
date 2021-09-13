@@ -9,6 +9,7 @@ public class UI_MultipleObjectives : MonoBehaviour
     private TMP_Text ObjectiveText;
     private float m_maxMoney = 0.0f;
     public bool m_escaped = false;
+    public bool m_objectivesComplete = false;
     public CanvasGroup m_canvasGroup;
     public float m_fadeSpeed = 0.2f;
     public float m_alphaMin = 0.3f;
@@ -23,6 +24,10 @@ public class UI_MultipleObjectives : MonoBehaviour
         {
             m_maxMoney += loot.m_currentValue;
         }
+
+        m_maxMoney *= 0.75f; // only need 75% of money
+        m_maxMoney -= m_maxMoney % 10; // rounding
+
         ObjectiveText = GetComponent<TMP_Text>();
         TaskUpdate();
 
@@ -47,8 +52,9 @@ public class UI_MultipleObjectives : MonoBehaviour
 
         if (GameManager.instance.lootValue >= m_maxMoney)
         {
+            m_objectivesComplete = true;
             checkValue = (m_escaped) ? "•" : "○";
-            ObjectiveText.text += $"\n{checkValue} Escape to the exit";
+            ObjectiveText.text += $"\n{checkValue} Get to the roof to escape!";
         }
 
         float newAlpha = m_canvasGroup.alpha - Time.deltaTime * m_fadeSpeed;

@@ -138,18 +138,18 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: victory is yours
+  m_text: YOU ESCAPED
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7074b557a5dd9104aa52bd80e14cf8a9, type: 2}
-  m_sharedMaterial: {fileID: 2950284235205244569, guid: 7074b557a5dd9104aa52bd80e14cf8a9,
+  m_fontAsset: {fileID: 11400000, guid: cbf2f111ba16e2e41b4a68c34e52f4ca, type: 2}
+  m_sharedMaterial: {fileID: 1806301416843769894, guid: cbf2f111ba16e2e41b4a68c34e52f4ca,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294929172
-  m_fontColor: {r: 0.08018869, g: 0.42112973, b: 1, a: 0}
+    rgba: 52735
+  m_fontColor: {r: 1, g: 0.80567217, b: 0, a: 0}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -166,8 +166,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 80
-  m_fontSizeBase: 80
+  m_fontSize: 58.04
+  m_fontSizeBase: 58.04
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

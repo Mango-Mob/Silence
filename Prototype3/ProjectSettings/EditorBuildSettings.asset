@@ -10,11 +10,8 @@ EditorBuildSettings:
     guid: f3b1261565f340948b33a6e37dba47b4
   - enabled: 1
     path: Assets/Scenes/MapSelect.unity
-    guid: 73d4759480452ba47b57b6e490ac069b
+    guid: 889487f1a01554c42bfaf8150e688c70
   - enabled: 1
-    path: Assets/Scenes/Blank.unity
-    guid: 6539f6f722969664c95756a74bbe0b2f
-  - enabled: 1
-    path: Assets/Scenes/William De Beer/DeBeerScene.unity
-    guid: 80740cb14b839a74ba5e6f06be4cadbe
+    path: Assets/Scenes/MainGame.unity
+    guid: 525b24cdf05285c4c9784efdbb9002d6
   m_configObjects: {}
