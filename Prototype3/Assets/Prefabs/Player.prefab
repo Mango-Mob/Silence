@@ -467,6 +467,7 @@ Transform:
   - {fileID: 56644506}
   - {fileID: 6866893978487428031}
   - {fileID: 7612911290638624488}
+  - {fileID: 4929812710471127887}
   m_Father: {fileID: 1263316920918627361}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -628,7 +629,6 @@ Transform:
   - {fileID: 996317606}
   - {fileID: 3543671098784761897}
   - {fileID: 367201962557565779}
-  - {fileID: 4929812710471127887}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -696,6 +696,7 @@ MonoBehaviour:
   m_wallColliderR: {fileID: 720680546}
   m_wallRunGravity: 1
   m_cameraTiltSpeed: 1
+  m_invisEffect: {fileID: 1851570840267622222}
   m_invisibilityDuration: 5
   m_invisibilityTimer: 0
   m_invisibilityCD: 30
@@ -936,11 +937,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1851570840267622222}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.045383453, y: 0.5700002, z: 0.69599915}
+  m_LocalPosition: {x: 0, y: 0, z: 0.8}
   m_LocalScale: {x: 3.9394598, y: 2.2786, z: 0.1041}
   m_Children: []
-  m_Father: {fileID: 1263316920918627361}
-  m_RootOrder: 5
+  m_Father: {fileID: 1263316920339090820}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8152581175630136831
 MeshFilter:
@@ -1678,7 +1679,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8192
   m_VolumeTrigger: {fileID: 0}
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -2450,7 +2451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderShadows: 1
+  m_RenderShadows: 0
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 1
@@ -2458,14 +2459,14 @@ MonoBehaviour:
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
   m_VolumeTrigger: {fileID: 0}
   m_RenderPostProcessing: 0
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
-  m_ClearDepth: 1
+  m_ClearDepth: 0
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
