@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 4000011410977192}
   - component: {fileID: 33000010784500842}
   - component: {fileID: 23000012688936090}
-  m_Layer: 0
+  - component: {fileID: 726440690130657053}
+  m_Layer: 2
   m_Name: chainlink_barbedwire-3_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,6 +80,22 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!208 &726440690130657053
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000012780340824}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 1.4180001, y: 0.25800002, z: 1.291}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1000012855196106
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,7 +106,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4000011240085458}
   - component: {fileID: 205000013743736396}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: chainlink_barbwire-3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +163,8 @@ GameObject:
   - component: {fileID: 4000011534965500}
   - component: {fileID: 33000012654294030}
   - component: {fileID: 23000014099749656}
-  m_Layer: 0
+  - component: {fileID: 2544847966077351048}
+  m_Layer: 2
   m_Name: chainlink_barbedwire-3_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -214,3 +232,16 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!65 &2544847966077351048
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000013352661962}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2.7983508, y: 0.51609474, z: 35.255947}
+  m_Center: {x: -0.0010910034, y: 4.7833645e-15, z: 16.336596}
