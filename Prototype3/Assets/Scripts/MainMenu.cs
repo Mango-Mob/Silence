@@ -30,6 +30,8 @@ public class MainMenu : MonoBehaviour
         m_soundEffectVolume.value = AudioManager.instance.volumes[1];
         m_musicVolume.value = AudioManager.instance.volumes[2];
         ignore = false;
+
+        Cursor.visible = true;
     }
     // Update is called once per frame
     void Update()
