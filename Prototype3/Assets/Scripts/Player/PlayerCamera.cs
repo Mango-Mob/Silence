@@ -17,7 +17,7 @@ public class PlayerCamera : MonoBehaviour
     public Camera m_camera { get; private set; }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
