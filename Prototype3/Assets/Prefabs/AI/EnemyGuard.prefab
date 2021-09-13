@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 113fca47959e9bf488b671a4d90b0f47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_sightDegrees: 40
+  m_sightDegrees: 45
   m_sightRange: 18
   m_castRadius: 1
   m_memoryDuration: 5
@@ -2387,7 +2387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Weight: 1
+  m_Weight: 0
   m_Effectors:
   - m_Transform: {fileID: 0}
     m_Style:
@@ -2743,7 +2743,7 @@ MonoBehaviour:
   m_attentionDecay: 0.125
   m_aggressionBuild: 5
   m_aggressionDecay: 0.25
-  m_immuneRange: 160
+  m_immuneRange: 51.2
   m_maxKillDist: 2.5
   m_meetingLoc: {x: 0, y: 0, z: 0}
   m_meetingTime: 0
@@ -2752,6 +2752,8 @@ MonoBehaviour:
   m_shotOrigin: {fileID: 1776482531}
   m_aliveCollider: {fileID: 1565689685}
   m_deathCollider: {fileID: 5417924798788740746}
+  M_shotFlairVfx: {fileID: 8529159188068020423, guid: 3eccf43d1ef4d3f4cbb864bd8ebf9084,
+    type: 3}
   m_routeWaypointID: -1
   m_myRoute: {fileID: 0}
   m_visionSpeed: 0.25

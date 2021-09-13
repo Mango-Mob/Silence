@@ -49,12 +49,12 @@ public class AI_Animator : MonoBehaviour
 
     public void Engage()
     {
-        m_aimRig.enabled = true;
+        //m_aimRig.enabled = true;
     }
 
     public void Disengage()
     {
-        m_aimRig.enabled = false;
+        //m_aimRig.enabled = false;
     }
 
     public void Talk()

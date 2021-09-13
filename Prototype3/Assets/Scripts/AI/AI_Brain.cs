@@ -64,10 +64,9 @@ public class AI_Brain : MonoBehaviour
     public GameObject m_targetTransform;
     public float m_timeDelayBetweenShots;
     public Transform m_shotOrigin;
-
     public Collider m_aliveCollider;
     public Collider m_deathCollider;
-
+    public GameObject M_shotFlairVfx;
     private float m_shotDelay = 0f;
     public int m_routeWaypointID = -1;
 
@@ -274,7 +273,7 @@ public class AI_Brain : MonoBehaviour
                 {
                     if(m_myLegs.IsResting())
                     {
-                        m_targetWaypoint = m_myLegs.GetRandomPointAround(m_currentInterest.Value.lastKnownLocation, 5.0f);
+                        m_targetWaypoint = m_currentInterest.Value.lastKnownLocation;
                         m_myLegs.SetTargetDestinaton(m_targetWaypoint);
                         m_myLegs.LookAtTarget();
                     }
@@ -308,9 +307,9 @@ public class AI_Brain : MonoBehaviour
                     m_shotDelay += m_timeDelayBetweenShots;
                     m_animator.Shoot();
                 }
-                m_myLegs.SetTargetDestinaton(m_targetWaypoint, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
+                m_myLegs.SetTargetDestinaton(m_targetTransform.transform.position, m_mySight.m_sightRange * 0.25f, m_mySight.m_sightRange * 0.75f, false);
                 m_myLegs.LookAtTarget();
-                m_targetTransform.transform.position = m_targetWaypoint;
+                //m_targetTransform.transform.position = m_targetWaypoint;
                 SensorCheck();
                 HearingCheck();
                 break;
@@ -677,6 +676,7 @@ public class AI_Brain : MonoBehaviour
     {
         Vector3 direction = (m_targetTransform.transform.position - m_shotOrigin.transform.position).normalized;
         m_agent.Play("Gunshot");
+        Instantiate(M_shotFlairVfx, m_shotOrigin.transform.position, Quaternion.identity);
         Rigidbody proj = Instantiate(prefab, m_shotOrigin.transform.position, Quaternion.LookRotation(direction, Vector3.up)).GetComponent<Rigidbody>();
         proj.AddForce(direction * 0.3f, ForceMode.Impulse);
         m_shotDelay += 0.3f;

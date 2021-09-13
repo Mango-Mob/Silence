@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6772335206478818976}
   - component: {fileID: 6521922199915875176}
   - component: {fileID: 129529352318599398}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: GlassTank_TankShellGlass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
