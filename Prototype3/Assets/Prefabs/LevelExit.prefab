@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3484085260071478089}
   - component: {fileID: 4416214830719824525}
   - component: {fileID: 5455701143743835863}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: LevelExit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,3 +66,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5267cac09fda9744f84638b7f651fb49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_nextLevelName: MapSelect
