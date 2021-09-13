@@ -1893,7 +1893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d02c2015a02b9a4a9267a7f3c56732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_gameSceneName: DeBeerScene
+  m_gameSceneName: MainGame
   m_menuSceneName: MainMenu
 --- !u!1 &959699410
 GameObject:
