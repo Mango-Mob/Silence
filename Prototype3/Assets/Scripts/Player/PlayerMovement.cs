@@ -321,6 +321,9 @@ public class PlayerMovement : MonoBehaviour
     }
     public void Footstep()
     {
+        if (!m_grounded)
+            return;
+
         NoiseManager.instance.CreateNoise(transform.position, 8.0f, m_noiseMask, Time.deltaTime);
         audioAgent.Play("Footstep");
     }
