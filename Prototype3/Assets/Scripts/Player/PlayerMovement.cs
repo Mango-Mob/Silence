@@ -91,6 +91,7 @@ public class PlayerMovement : MonoBehaviour
     private bool m_wallRunRefreshed = true;
 
     [Header("Invisibility")]
+    public GameObject m_invisEffect;
     public float m_invisibilityDuration = 5.0f;
     public float m_invisibilityTimer = 0.0f;
     public float m_invisibilityCD = 45.0f;
@@ -302,6 +303,8 @@ public class PlayerMovement : MonoBehaviour
                 m_invisibilityTimer = 0.0f;
                 break;
         }
+        m_invisEffect.SetActive(m_isInvisible);
+
         switch (m_armAbility)
         {
             case ArmAbility.grapplingHook:
