@@ -131,6 +131,9 @@ MonoBehaviour:
   m_sightLayer:
     serializedVersion: 2
     m_Bits: 768
+  m_rayIgnore:
+    serializedVersion: 2
+    m_Bits: 2147498496
   m_renderResolution: 0.5
   m_obstacleMask:
     serializedVersion: 2

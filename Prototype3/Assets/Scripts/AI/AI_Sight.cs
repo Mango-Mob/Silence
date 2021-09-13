@@ -40,6 +40,7 @@ public class AI_Sight : MonoBehaviour
     public float m_castRadius = 1f;
     public float m_memoryDuration = 5.0f;
     public LayerMask m_sightLayer;
+    public LayerMask m_rayIgnore;
 
     [Header("Render variables")]
     [Range(0f, 1f)]
@@ -216,7 +217,7 @@ public class AI_Sight : MonoBehaviour
         {
             foreach (var hit in hits)
             {   
-                if(hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy"))
+                if(!(m_rayIgnore == (m_rayIgnore | (1 << hit.collider.gameObject.layer))))
                 {
                     float curr = Vector3.Distance(hit.point, transform.position);
                     if (curr < dist)
